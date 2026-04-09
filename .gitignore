@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.playwright/
+test-results/
+playwright-report/
+*.local
+.env
+
+# AI tooling
+.claude/
+.cursor/
+CLAUDE.md
+.aider*
+.copilot/
+.github/copilot/

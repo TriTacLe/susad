@@ -1,0 +1,36 @@
+{
+  "name": "susad-editor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test:unit": "vitest",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "eslint src/",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "lucide-vue-next": "^1.0.0",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.2.0",
+    "vue": "^3.5.31"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/vite": "^4.2.4",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/tsconfig": "^0.9.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-vue": "^10.9.1",
+    "globals": "^17.6.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.10",
+    "vitest": "^4.1.5",
+    "vue-tsc": "^3.2.8"
+  }
+}
