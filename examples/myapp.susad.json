@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "system": "MyApp",
+  "locale": "en",
+  "items": [
+    {
+      "id": "IE1",
+      "code": "IE1",
+      "label": "Achieve lifelong learning",
+      "sector": "individual",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "II1",
+      "code": "II1",
+      "label": "Scope for participation",
+      "sector": "individual",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "SE1",
+      "code": "SE1",
+      "label": "Increased engagement with sustainability",
+      "sector": "social",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EnS1",
+      "code": "EnS1",
+      "label": "Reduce carbon footprint",
+      "sector": "environmental",
+      "ring": "structural",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EcE1",
+      "code": "EcE1",
+      "label": "Inspire to R&D around sustainability",
+      "sector": "economic",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TI1",
+      "code": "TI1",
+      "label": "Secure Feide login",
+      "sector": "technical",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TE1",
+      "code": "TE1",
+      "label": "Storage requirements",
+      "sector": "technical",
+      "ring": "enabling",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    }
+  ],
+  "edges": [
+    { "id": "edge-IE1-SE1", "from": "IE1", "to": "SE1" },
+    { "id": "edge-system-EcE1", "from": "system", "to": "EcE1" },
+    { "id": "edge-EcE1-EnS1", "from": "EcE1", "to": "EnS1" }
+  ]
+}
