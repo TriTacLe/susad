@@ -211,18 +211,19 @@ function ringLabel(r: Ring): string {
           />
           <button
             v-if="localColor"
-            class="text-xs text-[#737373] underline"
+            class="text-xs text-[#737373] underline focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
             @click="localColor = ''; commitItem()"
           >
             Reset
           </button>
+          <span v-else class="text-xs text-[#a3a3a3]">{{ t.colorHint }}</span>
         </div>
       </div>
 
       <!-- Size -->
       <div class="flex gap-2">
         <div class="flex-1">
-          <label class="block text-xs font-medium mb-1" for="insp-width">{{ t.width }}</label>
+          <label class="block text-xs font-medium mb-1" for="insp-width">{{ t.width }} (px)</label>
           <input
             id="insp-width"
             v-model.number="localWidth"
@@ -234,7 +235,7 @@ function ringLabel(r: Ring): string {
           />
         </div>
         <div class="flex-1">
-          <label class="block text-xs font-medium mb-1" for="insp-height">{{ t.height }}</label>
+          <label class="block text-xs font-medium mb-1" for="insp-height">{{ t.height }} (px)</label>
           <input
             id="insp-height"
             v-model.number="localHeight"

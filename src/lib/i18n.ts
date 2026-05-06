@@ -53,6 +53,13 @@ export const UI: Record<Locale, Record<string, string>> = {
     closePanel: 'Close panel',
     details: 'Details',
     fitView: 'Fit',
+    codeRequired: 'Code is required',
+    labelRequired: 'Label is required',
+    addItemTitle: 'Add item',
+    colorHint: 'Overrides polarity default. Click Reset to restore.',
+    unsaved: 'Unsaved changes',
+    emptyState: 'Click "+ Add item" below or in the panel on the left to get started.',
+    emptyStateTitle: 'No items yet',
   },
   no: {
     appName: 'SusAD',
@@ -106,6 +113,13 @@ export const UI: Record<Locale, Record<string, string>> = {
     closePanel: 'Lukk panel',
     details: 'Detaljer',
     fitView: 'Tilpass',
+    codeRequired: 'Kode er påkrevd',
+    labelRequired: 'Etikett er påkrevd',
+    addItemTitle: 'Legg til element',
+    colorHint: 'Overstyrer standardfarge. Klikk Tilbakestill for å gjenopprette.',
+    unsaved: 'Ulagrede endringer',
+    emptyState: 'Klikk "+ Legg til element" nedenfor eller i panelet til venstre for å komme i gang.',
+    emptyStateTitle: 'Ingen elementer enda',
   },
 }
 

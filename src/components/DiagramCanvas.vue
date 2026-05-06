@@ -171,7 +171,8 @@ const edgesWithCoords = computed(() =>
         :width="CANVAS_SIZE"
         :height="CANVAS_SIZE"
         :viewBox="`${-half} ${-half} ${CANVAS_SIZE} ${CANVAS_SIZE}`"
-        class="absolute inset-0 bg-white border border-[#d4d4d4]"
+        class="absolute inset-0"
+        style="overflow: visible; background: transparent"
       >
         <defs>
           <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
@@ -181,6 +182,17 @@ const edgesWithCoords = computed(() =>
             <path d="M 0 0 L 6 3 L 0 6 Z" fill="#1d4ed8" />
           </marker>
         </defs>
+
+        <!-- White canvas that grows with diagramScale -->
+        <rect
+          :x="-half * (diagram.diagramScale ?? 1)"
+          :y="-half * (diagram.diagramScale ?? 1)"
+          :width="CANVAS_SIZE * (diagram.diagramScale ?? 1)"
+          :height="CANVAS_SIZE * (diagram.diagramScale ?? 1)"
+          fill="white"
+          stroke="#d4d4d4"
+          stroke-width="1"
+        />
 
         <!-- Static backdrop (no pointer events) -->
         <g style="pointer-events: none">
@@ -205,6 +217,7 @@ const edgesWithCoords = computed(() =>
           :label="diagram.system"
           :selected="selectedId === 'system'"
           :connect-mode="connectMode"
+          :scale="diagram.diagramScale ?? 1"
           @click="connectMode ? emit('connectSystem') : emit('selectSystem')"
         />
       </svg>
@@ -262,6 +275,16 @@ const edgesWithCoords = computed(() =>
       >
         1:1
       </button>
+    </div>
+
+    <!-- Empty state (viewport-fixed so it doesn't zoom) -->
+    <div
+      v-if="diagram.items.length === 0"
+      class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+      aria-hidden="true"
+    >
+      <p class="text-sm font-medium text-[#a3a3a3]">{{ t.emptyStateTitle }}</p>
+      <p class="text-xs text-[#a3a3a3] mt-1 max-w-[220px] text-center">{{ t.emptyState }}</p>
     </div>
 
     <!-- Add item: bottom center, always accessible -->

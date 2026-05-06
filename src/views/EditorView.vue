@@ -35,6 +35,7 @@ function saveFile(): void {
   a.download = `${store.diagram.system || 'susad'}.susad.json`
   a.click()
   URL.revokeObjectURL(url)
+  store.markSaved()
 }
 
 function triggerOpen(): void {
@@ -182,6 +183,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       :can-redo="store.canRedo"
       :connect-mode="store.connectState.mode === 'connecting'"
       :diagram-scale="store.diagram.diagramScale ?? 1"
+      :has-pending-changes="store.hasPendingChanges"
       @new="onNew"
       @open="onOpen"
       @save="saveFile"
@@ -301,6 +303,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
     <AddItemDialog
       :open="showAddDialog"
+      :locale="store.diagram.locale"
+      :suggest-code="store.suggestItemCode"
       @close="showAddDialog = false"
       @add="onAddItem($event)"
     />

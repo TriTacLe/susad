@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Diagram, Item, Edge, Locale, Sector, Ring } from '@/types'
-import { computeLayout } from '@/lib/layout'
+import { computeLayout, computeForceLayout } from '@/lib/layout'
 import { detectSectorRing, slotCenter } from '@/lib/geometry'
 
 const SECTOR_PREFIX: Record<Sector, string> = {
@@ -38,6 +38,8 @@ export const useDiagramStore = defineStore(
     const future = ref<Diagram[]>([])
     const selectedId = ref<string | null>(null)
     const connectState = ref<ConnectState>({ mode: 'idle' })
+    const mutationCount = ref(0)
+    const savedMutationCount = ref(0)
 
     const layout = computed(() => computeLayout(diagram.value.items, diagram.value.diagramScale ?? 1))
     const canUndo = computed(() => past.value.length > 0)
@@ -45,11 +47,21 @@ export const useDiagramStore = defineStore(
     const isDirty = computed(
       () => diagram.value.items.length > 0 || diagram.value.edges.length > 0,
     )
+    const hasPendingChanges = computed(() => mutationCount.value !== savedMutationCount.value)
 
     function record(): void {
       past.value.push(snapshot(diagram.value))
       if (past.value.length > MAX_HISTORY) past.value.shift()
       future.value = []
+      mutationCount.value++
+    }
+
+    function markSaved(): void {
+      savedMutationCount.value = mutationCount.value
+    }
+
+    function suggestItemCode(sector: Sector, ring: Ring): string {
+      return generateItemId(sector, ring, diagram.value.items)
     }
 
     function undo(): void {
@@ -69,6 +81,12 @@ export const useDiagramStore = defineStore(
       diagram.value = d
       selectedId.value = null
       connectState.value = { mode: 'idle' }
+      const scale = diagram.value.diagramScale ?? 1
+      const offsets = computeForceLayout(diagram.value.items, scale)
+      for (const item of diagram.value.items) {
+        const off = offsets.get(item.id)
+        if (off) { item.dx = off.dx; item.dy = off.dy }
+      }
     }
 
     function reset(): void {
@@ -160,9 +178,11 @@ export const useDiagramStore = defineStore(
 
     function resetLayout(): void {
       record()
+      const scale = diagram.value.diagramScale ?? 1
+      const offsets = computeForceLayout(diagram.value.items, scale)
       for (const item of diagram.value.items) {
-        item.dx = 0
-        item.dy = 0
+        const off = offsets.get(item.id)
+        if (off) { item.dx = off.dx; item.dy = off.dy }
       }
     }
 
@@ -248,6 +268,9 @@ export const useDiagramStore = defineStore(
       canUndo,
       canRedo,
       isDirty,
+      hasPendingChanges,
+      markSaved,
+      suggestItemCode,
       undo,
       redo,
       load,

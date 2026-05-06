@@ -1,0 +1,304 @@
+{
+  "version": 1,
+  "system": "Nettdetektivene",
+  "locale": "no",
+  "diagramScale": 1,
+  "items": [
+    {
+      "id": "II1",
+      "code": "II1",
+      "label": "Elever tilegner seg kildekritikk og digital sikkerhet gjennom detektivspillet",
+      "sector": "individual",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "II2",
+      "code": "II2",
+      "label": "Lærere far strukturerte verktøy for elevoppfølging, varsler og progressjonsoversikt",
+      "sector": "individual",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "II3",
+      "code": "II3",
+      "label": "Økt skjermtid for barn (3.-7. trinn) per skoletime",
+      "sector": "individual",
+      "ring": "immediate",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "II4",
+      "code": "II4",
+      "label": "Lærers innholdsfiltrering beskytter barn mot upassende innhold i notatblokk og brukernavn",
+      "sector": "individual",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "IE1",
+      "code": "IE1",
+      "label": "Elever overfører kildekritisk tenkning til aktiviteter utenfor plattformen",
+      "sector": "individual",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "IE2",
+      "code": "IE2",
+      "label": "WCAG 2.1 AA-samsvar sikrer at barn med funksjonsnedsettelser kan delta på lik linje",
+      "sector": "individual",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "IS1",
+      "code": "IS1",
+      "label": "Barn utvikler langsiktig digital kompetanse og kritisk selvstendighet",
+      "sector": "individual",
+      "ring": "structural",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "SI1",
+      "code": "SI1",
+      "label": "Felles ledertavle og oppgaver bygger engasjement og fellesskap i klassen",
+      "sector": "social",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "SI2",
+      "code": "SI2",
+      "label": "Klasseromrangering kan demotivere elever som presterer lavt",
+      "sector": "social",
+      "ring": "immediate",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "SI3",
+      "code": "SI3",
+      "label": "Ledertavlen viser klassens samledscore, ikke individuell score - forhindrer sammenligning mellom elever",
+      "sector": "social",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "SE1",
+      "code": "SE1",
+      "label": "Lærerstyrt struktur og felles oppgaver reduserer digitalt kompetansegap mellom elever",
+      "sector": "social",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "SS1",
+      "code": "SS1",
+      "label": "Hever grunnleggende digital litterasitet i norsk grunnskole pa sikt",
+      "sector": "social",
+      "ring": "structural",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TI1",
+      "code": "TI1",
+      "label": "JWT, Spring Security, CORS og passord-hashing beskytter barns persondata",
+      "sector": "technical",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TI2",
+      "code": "TI2",
+      "label": "GitHub Actions CI/CD med GHCR og Nginx/Let's Encrypt reduserer manuelle feil ved utrulling",
+      "sector": "technical",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TI3",
+      "code": "TI3",
+      "label": "Enkelt distribusjonspunkt (NTNU OpenStack) uten horisontal skalering",
+      "sector": "technical",
+      "ring": "immediate",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TI4",
+      "code": "TI4",
+      "label": "Nettleser- og nettbrettstøtte (Chrome, Firefox, iPad) sikrer tilgjengelighet uavhengig av enhet",
+      "sector": "technical",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TE1",
+      "code": "TE1",
+      "label": "Modulær Spring Boot + Vue/Pinia-arkitektur med Flyway-migrasjoner muliggjor fremtidig vedlikehold og utvidelse",
+      "sector": "technical",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TS1",
+      "code": "TS1",
+      "label": "Avhengighet av NTNU OpenStack skaper strukturell risiko ved endring i vertskapsavtale",
+      "sector": "technical",
+      "ring": "structural",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EcI1",
+      "code": "EcI1",
+      "label": "Erstatter trykte arbeidsark og fysiske læringsmateriell",
+      "sector": "economic",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EcI2",
+      "code": "EcI2",
+      "label": "Infrastruktur- og driftskostnader for OpenStack-hosting og domene",
+      "sector": "economic",
+      "ring": "immediate",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EcE1",
+      "code": "EcE1",
+      "label": "Gratis plattform senker terskelen for skoler med begrenset EdTech-budsjett",
+      "sector": "economic",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EcS1",
+      "code": "EcS1",
+      "label": "Bred adopsjon kan redusere nasjonale kostnader til digital-dannelsesprogram i skolen",
+      "sector": "economic",
+      "ring": "structural",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EnI1",
+      "code": "EnI1",
+      "label": "Digital levering eliminerer trykte arbeidsark og papirforbruk",
+      "sector": "environmental",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EnI2",
+      "code": "EnI2",
+      "label": "Energiforbruk per økt: server (OpenStack) og elevenhetene i klasserommet",
+      "sector": "environmental",
+      "ring": "immediate",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EnE1",
+      "code": "EnE1",
+      "label": "Sentralisert skyhosting er mer energieffektivt enn lokale skoleservere",
+      "sector": "environmental",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "EnS1",
+      "code": "EnS1",
+      "label": "Økt iPad/nettbrett-bruk i klasserom oker etterspørselen etter nytt elektronisk utstyr",
+      "sector": "environmental",
+      "ring": "structural",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    }
+  ],
+  "edges": [
+    { "id": "edge-II1-system", "from": "II1", "to": "system" },
+    { "id": "edge-II2-system", "from": "II2", "to": "system" },
+    { "id": "edge-II3-system", "from": "II3", "to": "system" },
+    { "id": "edge-II4-system", "from": "II4", "to": "system" },
+    { "id": "edge-IE1-II1", "from": "IE1", "to": "II1" },
+    { "id": "edge-IE2-II1", "from": "IE2", "to": "II1" },
+    { "id": "edge-IS1-IE1", "from": "IS1", "to": "IE1" },
+
+    { "id": "edge-SI1-system", "from": "SI1", "to": "system" },
+    { "id": "edge-SI2-system", "from": "SI2", "to": "system" },
+    { "id": "edge-SI3-system", "from": "SI3", "to": "system" },
+    { "id": "edge-SE1-SI1", "from": "SE1", "to": "SI1" },
+    { "id": "edge-SS1-SE1", "from": "SS1", "to": "SE1" },
+
+    { "id": "edge-TI1-system", "from": "TI1", "to": "system" },
+    { "id": "edge-TI2-system", "from": "TI2", "to": "system" },
+    { "id": "edge-TI3-system", "from": "TI3", "to": "system" },
+    { "id": "edge-TI4-system", "from": "TI4", "to": "system" },
+    { "id": "edge-TE1-TI2", "from": "TE1", "to": "TI2" },
+    { "id": "edge-TS1-TI3", "from": "TS1", "to": "TI3" },
+
+    { "id": "edge-EcI1-system", "from": "EcI1", "to": "system" },
+    { "id": "edge-EcI2-system", "from": "EcI2", "to": "system" },
+    { "id": "edge-EcE1-EcI1", "from": "EcE1", "to": "EcI1" },
+    { "id": "edge-EcS1-EcE1", "from": "EcS1", "to": "EcE1" },
+
+    { "id": "edge-EnI1-system", "from": "EnI1", "to": "system" },
+    { "id": "edge-EnI2-system", "from": "EnI2", "to": "system" },
+    { "id": "edge-EnE1-EnI2", "from": "EnE1", "to": "EnI2" },
+    { "id": "edge-EnS1-EnI2", "from": "EnS1", "to": "EnI2" },
+
+    { "id": "edge-IE1-SE1", "from": "IE1", "to": "SE1" },
+    { "id": "edge-IS1-SS1", "from": "IS1", "to": "SS1" },
+    { "id": "edge-EcS1-EnE1", "from": "EcS1", "to": "EnE1" }
+  ]
+}

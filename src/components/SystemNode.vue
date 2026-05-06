@@ -1,13 +1,21 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   label: string
   selected: boolean
   connectMode: boolean
+  scale?: number
 }>()
 
 defineEmits<{
   click: []
 }>()
+
+const sc = computed(() => props.scale ?? 1)
+const rx = computed(() => 60 * sc.value)
+const ry = computed(() => 38 * sc.value)
+const fontSize = computed(() => 13 * sc.value)
 </script>
 
 <template>
@@ -25,8 +33,8 @@ defineEmits<{
     <ellipse
       cx="0"
       cy="0"
-      rx="60"
-      ry="38"
+      :rx="rx"
+      :ry="ry"
       fill="#be185d"
       :stroke="selected ? '#1d4ed8' : 'none'"
       :stroke-width="selected ? 2 : 0"
@@ -37,7 +45,7 @@ defineEmits<{
       y="0"
       text-anchor="middle"
       dominant-baseline="middle"
-      font-size="13"
+      :font-size="fontSize"
       font-weight="bold"
       font-family="sans-serif"
       fill="white"
@@ -50,8 +58,8 @@ defineEmits<{
       v-if="connectMode"
       cx="0"
       cy="0"
-      rx="65"
-      ry="43"
+      :rx="rx + 5"
+      :ry="ry + 5"
       fill="none"
       stroke="#1d4ed8"
       stroke-width="2"

@@ -28,12 +28,17 @@ const emit = defineEmits<{
 const cardW = computed(() => props.item.width ?? DEFAULT_W)
 const cardH = computed(() => props.item.height ?? DEFAULT_H)
 
-const style = computed(() => ({
-  left: `${props.x + CANVAS_SIZE / 2 - cardW.value / 2}px`,
-  top: `${props.y + CANVAS_SIZE / 2 - cardH.value / 2}px`,
-  width: `${cardW.value}px`,
-  minHeight: `${cardH.value}px`,
-}))
+const style = computed(() => {
+  const base = {
+    left: `${props.x + CANVAS_SIZE / 2}px`,
+    top: `${props.y + CANVAS_SIZE / 2}px`,
+    width: `${cardW.value}px`,
+    transform: 'translate(-50%, -50%)',
+  }
+  // Only fix height if user has manually resized; otherwise auto-size to content
+  if (props.item.height !== undefined) return { ...base, height: `${cardH.value}px` }
+  return base
+})
 
 const bgColor = computed(() =>
   props.item.color || (props.item.polarity === 'positive' ? '#15803d' : '#b45309'),
@@ -134,7 +139,7 @@ function onResizeUp(e: PointerEvent): void {
   <div
     data-item="true"
     :style="{ ...style, backgroundColor: bgColor }"
-    class="absolute rounded border border-white/20 text-white select-none touch-none"
+    class="absolute rounded border border-white/20 text-white select-none touch-none overflow-hidden"
     :class="{
       'outline outline-2 outline-offset-2 outline-[#1d4ed8]': selected && !connectMode,
       'outline outline-2 outline-offset-2 outline-dashed outline-[#1d4ed8]': connectMode && !isConnectSource,
@@ -152,41 +157,50 @@ function onResizeUp(e: PointerEvent): void {
     @keydown.enter="emit('select', item.id)"
     @keydown.space.prevent="emit('select', item.id)"
   >
-    <!-- Text content in its own overflow-hidden layer so it doesn't interfere with resize handle -->
-    <div class="p-1 overflow-hidden w-full h-full pointer-events-none">
-      <p class="text-[10px] leading-tight font-semibold truncate">{{ item.code }}</p>
-      <p class="text-[9px] leading-tight line-clamp-3">{{ item.label }} ({{ item.polarity === 'positive' ? '+' : '-' }})</p>
+    <!-- Text content; overflow-hidden only when height is manually fixed -->
+    <div class="p-1 pointer-events-none w-full" :class="item.height !== undefined ? 'overflow-hidden h-full' : ''">
+      <p class="text-[11px] leading-tight font-bold" :class="item.height !== undefined ? 'truncate' : ''">{{ item.code }}</p>
+      <p class="text-[11px] leading-snug font-medium" :class="item.height !== undefined ? 'line-clamp-3' : ''">{{ item.label }} ({{ item.polarity === 'positive' ? '+' : '-' }})</p>
     </div>
 
     <!-- Resize handles: 4 corners, outside overflow-hidden wrapper so always hittable -->
     <template v-if="selected && !connectMode">
       <div
-        class="absolute top-0 left-0 w-5 h-5 cursor-nw-resize touch-none"
-        style="background: rgba(255,255,255,0.25); border-bottom-right-radius: 4px;"
+        class="absolute top-0 left-0 w-5 h-5 cursor-nw-resize touch-none flex items-start justify-start pl-[3px] pt-[3px]"
         aria-hidden="true"
         @pointerdown.stop="onResizeDown($event, -1, -1)"
         @pointermove="onResizeMove"
         @pointerup="onResizeUp"
-      />
+      >
+        <svg width="6" height="6" viewBox="0 0 6 6" fill="none" aria-hidden="true">
+          <path d="M5 1L1 5M1 1L1 5L5 5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
       <div
-        class="absolute top-0 right-0 w-5 h-5 cursor-ne-resize touch-none"
-        style="background: rgba(255,255,255,0.25); border-bottom-left-radius: 4px;"
+        class="absolute top-0 right-0 w-5 h-5 cursor-ne-resize touch-none flex items-start justify-end pr-[3px] pt-[3px]"
         aria-hidden="true"
         @pointerdown.stop="onResizeDown($event, 1, -1)"
         @pointermove="onResizeMove"
         @pointerup="onResizeUp"
-      />
+      >
+        <svg width="6" height="6" viewBox="0 0 6 6" fill="none" aria-hidden="true">
+          <path d="M1 1L5 5M5 1L5 5L1 5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
       <div
-        class="absolute bottom-0 left-0 w-5 h-5 cursor-sw-resize touch-none"
-        style="background: rgba(255,255,255,0.25); border-top-right-radius: 4px;"
+        class="absolute bottom-0 left-0 w-5 h-5 cursor-sw-resize touch-none flex items-end justify-start pl-[3px] pb-[3px]"
         aria-hidden="true"
         @pointerdown.stop="onResizeDown($event, -1, 1)"
         @pointermove="onResizeMove"
         @pointerup="onResizeUp"
-      />
+      >
+        <svg width="6" height="6" viewBox="0 0 6 6" fill="none" aria-hidden="true">
+          <path d="M5 5L1 1M1 5L1 1L5 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
       <div
         class="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize touch-none flex items-end justify-end pr-[3px] pb-[3px]"
-        style="background: rgba(255,255,255,0.35); border-top-left-radius: 4px;"
+        style=""
         aria-hidden="true"
         @pointerdown.stop="onResizeDown($event, 1, 1)"
         @pointermove="onResizeMove"

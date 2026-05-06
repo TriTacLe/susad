@@ -10,6 +10,7 @@ const props = defineProps<{
   canRedo: boolean
   connectMode: boolean
   diagramScale: number
+  hasPendingChanges: boolean
 }>()
 
 const emit = defineEmits<{
@@ -40,7 +41,15 @@ function onScaleInput(e: Event): void {
 
     <button class="btn" :title="t.new" @click="emit('new')">{{ t.new }}</button>
     <button class="btn" :title="t.open" @click="emit('open')">{{ t.open }}</button>
-    <button class="btn" :title="t.save" @click="emit('save')">{{ t.save }}</button>
+    <button class="btn relative" :title="t.save" @click="emit('save')">
+      {{ t.save }}
+      <span
+        v-if="hasPendingChanges"
+        class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#b45309]"
+        :title="t.unsaved ?? 'Unsaved changes'"
+        aria-hidden="true"
+      />
+    </button>
 
     <span class="w-px h-5 bg-[#d4d4d4] mx-1" aria-hidden="true" />
 
@@ -89,9 +98,10 @@ function onScaleInput(e: Event): void {
 
     <span class="w-px h-5 bg-[#d4d4d4] mx-1" aria-hidden="true" />
 
-    <label class="flex items-center gap-2 text-sm">
-      <span class="text-xs text-[#525252] whitespace-nowrap">Scale</span>
+    <div class="flex items-center gap-2 text-sm">
+      <label for="diagram-scale" class="text-xs text-[#525252] whitespace-nowrap">Scale</label>
       <input
+        id="diagram-scale"
         type="range"
         min="0.3"
         max="1.8"
@@ -101,8 +111,15 @@ function onScaleInput(e: Event): void {
         :title="`Diagram scale: ${Math.round(diagramScale * 100)}%`"
         @input="onScaleInput"
       />
-      <span class="text-xs text-[#525252] w-8 tabular-nums">{{ Math.round(diagramScale * 100) }}%</span>
-    </label>
+      <span class="text-xs text-[#525252] w-8 tabular-nums" aria-live="polite">{{ Math.round(diagramScale * 100) }}%</span>
+      <button
+        class="btn"
+        title="Reset diagram scale to 100%"
+        @click="emit('diagramScale', 1)"
+      >
+        Reset
+      </button>
+    </div>
 
     <button
       v-if="connectMode"

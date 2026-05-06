@@ -39,14 +39,15 @@ export function edgeMidpoint(sectorAngle: number, scale = 1): { x: number; y: nu
 
 // Ring radii as fraction of inradius
 const RING_RADIUS_FRACTION: Record<Ring, number> = {
-  immediate: 0.30,
-  enabling: 0.57,
-  structural: 0.83,
+  immediate: 0.38,
+  enabling: 0.63,
+  structural: 0.85,
 }
 
 // Ring boundary scales (for drawing concentric pentagons)
-// 4 boundaries create 3 zones
-export const RING_BOUNDARY_SCALES = [1.0, 0.68, 0.38, 0.10]
+// 4 boundaries create 3 zones; must bracket RING_RADIUS_FRACTION values
+// immediate=0.38, enabling=0.63, structural=0.85
+export const RING_BOUNDARY_SCALES = [1.0, 0.72, 0.50, 0.10]
 
 export function ringRadius(ring: Ring, scale = 1): number {
   return INRADIUS * RING_RADIUS_FRACTION[ring] * scale
@@ -58,9 +59,9 @@ export function slotCenter(sector: Sector, ring: Ring, scale = 1): { x: number; 
   return { x: r * Math.cos(a), y: r * Math.sin(a) }
 }
 
-// Spread multiple items in the same (sector, ring) slot
-// index: 0-based position among items in this slot
-// total: total items in this slot
+// Spread multiple items in the same (sector, ring) slot using a 2D grid:
+// columns spread perpendicular to sector axis, rows spread radially.
+// This prevents items from fanning out too far laterally into adjacent sectors.
 export function slotPosition(
   sector: Sector,
   ring: Ring,
@@ -71,15 +72,22 @@ export function slotPosition(
   const center = slotCenter(sector, ring, scale)
   if (total <= 1) return center
 
-  // Spread items perpendicular to the sector axis
   const a = deg(SECTOR_ANGLE_DEG[sector])
   const perp = { x: -Math.sin(a), y: Math.cos(a) }
-  const spread = Math.min(60, (total - 1) * 35) * scale
-  const offset = ((index - (total - 1) / 2) / Math.max(total - 1, 1)) * spread
+  const radial = { x: Math.cos(a), y: Math.sin(a) }
+
+  const cols = total <= 2 ? total : Math.ceil(Math.sqrt(total))
+  const rows = Math.ceil(total / cols)
+
+  const col = index % cols
+  const row = Math.floor(index / cols)
+
+  const perpOffset = (col - (cols - 1) / 2) * 110 * scale
+  const radialOffset = (row - (rows - 1) / 2) * 85 * scale
 
   return {
-    x: center.x + perp.x * offset,
-    y: center.y + perp.y * offset,
+    x: center.x + perp.x * perpOffset + radial.x * radialOffset,
+    y: center.y + perp.y * perpOffset + radial.y * radialOffset,
   }
 }
 
@@ -110,10 +118,11 @@ export function canvasToSvg(left: number, top: number): { x: number; y: number }
 // Sector boundary angles (vertex angles) in radians, sorted
 const VERTEX_ANGLES_RAD = VERTEX_ANGLES_DEG.map(deg)
 
-// Ring detection boundaries (midpoints between ring radii)
+// Ring detection boundaries (midpoints between ring radii, matching RING_RADIUS_FRACTION)
+// immediate=0.38, enabling=0.63, structural=0.85
 const RING_BOUNDARIES_BASE = [
-  INRADIUS * 0.435, // immediate / enabling
-  INRADIUS * 0.70,  // enabling / structural
+  INRADIUS * 0.505, // immediate / enabling midpoint: (0.38+0.63)/2
+  INRADIUS * 0.74,  // enabling / structural midpoint: (0.63+0.85)/2
 ]
 
 export function detectSectorRing(svgX: number, svgY: number, scale = 1): { sector: Sector; ring: Ring } {
