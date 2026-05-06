@@ -17,7 +17,7 @@
     {
       "id": "II2",
       "code": "II2",
-      "label": "Lærere far strukturerte verktøy for elevoppfølging, varsler og progressjonsoversikt",
+      "label": "Lærere får strukturerte verktøy for elevoppfølging, varsler og progresjonsoversikt",
       "sector": "individual",
       "ring": "immediate",
       "polarity": "positive",
@@ -45,6 +45,26 @@
       "dy": 0
     },
     {
+      "id": "II5",
+      "code": "II5",
+      "label": "Medaljer, XP og konfetti etter fullfort stopp gir elever mestringsfølelse og motiverer videre læring",
+      "sector": "individual",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "II6",
+      "code": "II6",
+      "label": "Oppsett av klasserom, tilleggsoppgaver og elevadministrasjon øker lærers arbeidsbelastning",
+      "sector": "individual",
+      "ring": "immediate",
+      "polarity": "negative",
+      "dx": 0,
+      "dy": 0
+    },
+    {
       "id": "IE1",
       "code": "IE1",
       "label": "Elever overfører kildekritisk tenkning til aktiviteter utenfor plattformen",
@@ -57,7 +77,17 @@
     {
       "id": "IE2",
       "code": "IE2",
-      "label": "WCAG 2.1 AA-samsvar sikrer at barn med funksjonsnedsettelser kan delta på lik linje",
+      "label": "WCAG 2.1 AA-samsvar tilrettelegger for at barn med funksjonsnedsettelser kan delta på lik linje",
+      "sector": "individual",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "IE3",
+      "code": "IE3",
+      "label": "Trygt og lærerledet digitalt læringsmiljø øker foreldres tillit til barns selvstendige nettbruk hjemme",
       "sector": "individual",
       "ring": "enabling",
       "polarity": "positive",
@@ -97,7 +127,17 @@
     {
       "id": "SI3",
       "code": "SI3",
-      "label": "Ledertavlen viser klassens samledscore, ikke individuell score - forhindrer sammenligning mellom elever",
+      "label": "Ledertavlen viser klassens samlescore, ikke individuell score - forhindrer sammenligning mellom elever",
+      "sector": "social",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "SI4",
+      "code": "SI4",
+      "label": "Lærers progresjonsoversikt per elev gir tidlig mulighet til å hjelpe elever som henger etter",
       "sector": "social",
       "ring": "immediate",
       "polarity": "positive",
@@ -117,7 +157,7 @@
     {
       "id": "SS1",
       "code": "SS1",
-      "label": "Hever grunnleggende digital litterasitet i norsk grunnskole pa sikt",
+      "label": "Hever grunnleggende digital litterasitet i norsk grunnskole på sikt",
       "sector": "social",
       "ring": "structural",
       "polarity": "positive",
@@ -165,9 +205,29 @@
       "dy": 0
     },
     {
+      "id": "TI5",
+      "code": "TI5",
+      "label": "Rollebasert tilgangskontroll sikrer at elever kun ser egne data og lærere kun sine klasserom",
+      "sector": "technical",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
       "id": "TE1",
       "code": "TE1",
-      "label": "Modulær Spring Boot + Vue/Pinia-arkitektur med Flyway-migrasjoner muliggjor fremtidig vedlikehold og utvidelse",
+      "label": "Modulær Spring Boot + Vue/Pinia-arkitektur med Flyway-migrasjoner muliggjør fremtidig vedlikehold og utvidelse",
+      "sector": "technical",
+      "ring": "enabling",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "TE2",
+      "code": "TE2",
+      "label": "OpenAPI-kontraktgenerering synkroniserer grensesnitt mellom Spring Boot og Vue automatisk og eliminerer manuell API-oppdatering",
       "sector": "technical",
       "ring": "enabling",
       "polarity": "positive",
@@ -217,7 +277,7 @@
     {
       "id": "EcS1",
       "code": "EcS1",
-      "label": "Bred adopsjon kan redusere nasjonale kostnader til digital-dannelsesprogram i skolen",
+      "label": "Bred adopsjon kan redusere nasjonale kostnader til digitale dannelsesprogram i skolen",
       "sector": "economic",
       "ring": "structural",
       "polarity": "positive",
@@ -257,7 +317,7 @@
     {
       "id": "EnS1",
       "code": "EnS1",
-      "label": "Økt iPad/nettbrett-bruk i klasserom oker etterspørselen etter nytt elektronisk utstyr",
+      "label": "Økt iPad/nettbrett-bruk i klasserom øker etterspørselen etter nytt elektronisk utstyr",
       "sector": "environmental",
       "ring": "structural",
       "polarity": "negative",
@@ -270,13 +330,18 @@
     { "id": "edge-II2-system", "from": "II2", "to": "system" },
     { "id": "edge-II3-system", "from": "II3", "to": "system" },
     { "id": "edge-II4-system", "from": "II4", "to": "system" },
+    { "id": "edge-II5-system", "from": "II5", "to": "system" },
+    { "id": "edge-II6-system", "from": "II6", "to": "system" },
     { "id": "edge-IE1-II1", "from": "IE1", "to": "II1" },
     { "id": "edge-IE2-II1", "from": "IE2", "to": "II1" },
+    { "id": "edge-IE3-II1", "from": "IE3", "to": "II1" },
     { "id": "edge-IS1-IE1", "from": "IS1", "to": "IE1" },
+    { "id": "edge-IS1-IE3", "from": "IS1", "to": "IE3" },
 
     { "id": "edge-SI1-system", "from": "SI1", "to": "system" },
     { "id": "edge-SI2-system", "from": "SI2", "to": "system" },
     { "id": "edge-SI3-system", "from": "SI3", "to": "system" },
+    { "id": "edge-SI4-system", "from": "SI4", "to": "system" },
     { "id": "edge-SE1-SI1", "from": "SE1", "to": "SI1" },
     { "id": "edge-SS1-SE1", "from": "SS1", "to": "SE1" },
 
@@ -284,7 +349,9 @@
     { "id": "edge-TI2-system", "from": "TI2", "to": "system" },
     { "id": "edge-TI3-system", "from": "TI3", "to": "system" },
     { "id": "edge-TI4-system", "from": "TI4", "to": "system" },
+    { "id": "edge-TI5-system", "from": "TI5", "to": "system" },
     { "id": "edge-TE1-TI2", "from": "TE1", "to": "TI2" },
+    { "id": "edge-TE2-TI2", "from": "TE2", "to": "TI2" },
     { "id": "edge-TS1-TI3", "from": "TS1", "to": "TI3" },
 
     { "id": "edge-EcI1-system", "from": "EcI1", "to": "system" },
@@ -299,6 +366,7 @@
 
     { "id": "edge-IE1-SE1", "from": "IE1", "to": "SE1" },
     { "id": "edge-IS1-SS1", "from": "IS1", "to": "SS1" },
-    { "id": "edge-EcS1-EnE1", "from": "EcS1", "to": "EnE1" }
+    { "id": "edge-EcS1-EnE1", "from": "EcS1", "to": "EnE1" },
+    { "id": "edge-II5-SI1", "from": "II5", "to": "SI1" }
   ]
 }

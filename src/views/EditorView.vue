@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useDiagramStore } from '@/stores/diagram'
-import { parseFile, diagramToJson, downloadSvg, downloadPng } from '@/lib/importExport'
+import { parseFile, parseDiagram, diagramToJson, downloadSvg, downloadPng } from '@/lib/importExport'
+import exampleDiagram from '../../examples/nettdetektivene.susad.json'
 import { useT } from '@/lib/i18n'
 import DiagramCanvas from '@/components/DiagramCanvas.vue'
 import ItemList from '@/components/ItemList.vue'
@@ -172,7 +173,13 @@ function onKeydown(e: KeyboardEvent): void {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKeydown))
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+  if (!store.isDirty) {
+    store.load(parseDiagram(exampleDiagram))
+    store.markSaved()
+  }
+})
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
