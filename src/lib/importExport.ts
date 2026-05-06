@@ -132,41 +132,66 @@ function pentagonsPath(scale: number): string {
 const RING_COLORS = ['#dbeafe', '#bfdbfe', '#93c5fd', '#dbeafe']
 const POLARITY_COLORS: Record<Polarity, string> = { positive: '#15803d', negative: '#b45309' }
 const SYSTEM_COLOR = '#be185d'
-const ITEM_W = 90
-const ITEM_H = 50
+const EXPORT_ITEM_W = 90
+
+function estimateExportH(item: Item): number {
+  if (item.height !== undefined) return item.height
+  const w = item.width ?? EXPORT_ITEM_W
+  const charsPerLine = Math.max(5, Math.floor(w / 7))
+  const labelText = `${item.label} (${item.polarity === 'positive' ? '+' : '-'})`
+  const lines = Math.ceil(labelText.length / charsPerLine)
+  return Math.max(44, 6 + 15 + Math.max(1, lines) * 17 + 6)
+}
+
+function wrapText(text: string, maxChars: number): string[] {
+  const words = text.split(' ')
+  const lines: string[] = []
+  let current = ''
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word
+    if (candidate.length <= maxChars) {
+      current = candidate
+    } else {
+      if (current) lines.push(current)
+      current = word
+    }
+  }
+  if (current) lines.push(current)
+  return lines.length ? lines : ['']
+}
 
 export function buildExportSvg(diagram: Diagram): string {
-  const cs = CANVAS_SIZE
+  const sc = diagram.diagramScale ?? 1
+  const cs = CANVAS_SIZE * Math.max(1, sc)
   const half = cs / 2
-  const positions = computeLayout(diagram.items)
+  const positions = computeLayout(diagram.items, sc)
   const locale = diagram.locale
 
   // Sector lines from center to each vertex
   const sectorLines = VERTEX_ANGLES_DEG.map((a) => {
-    const x = CIRCUMRADIUS * Math.cos(deg(a))
-    const y = CIRCUMRADIUS * Math.sin(deg(a))
+    const x = CIRCUMRADIUS * sc * Math.cos(deg(a))
+    const y = CIRCUMRADIUS * sc * Math.sin(deg(a))
     return `<line x1="0" y1="0" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#262626" stroke-width="1.5"/>`
   }).join('\n  ')
 
-  // Pentagon rings (from outer to inner for layering)
-  const ringBgs = [...RING_BOUNDARY_SCALES].reverse().map((scale, i) => {
+  // Pentagon rings (from outer to inner for layering), scaled by diagramScale
+  const ringBgs = [...RING_BOUNDARY_SCALES].reverse().map((ringScale, i) => {
     const color = RING_COLORS[RING_BOUNDARY_SCALES.length - 1 - i] ?? '#dbeafe'
-    return `<path d="${pentagonsPath(scale)}" fill="${color}" stroke="#262626" stroke-width="1"/>`
+    return `<path d="${pentagonsPath(ringScale * sc)}" fill="${color}" stroke="#262626" stroke-width="1"/>`
   }).join('\n  ')
 
   // Axis label positions
   const axisLabels = (Object.entries(SECTOR_ANGLE_DEG) as [Sector, number][]).map(([sector, angle]) => {
-    const pt = edgeMidpoint(angle, 1.0)
+    const pt = edgeMidpoint(angle, sc)
     const rot = labelRotation(angle)
     const label = SECTOR_LABELS[locale][sector]
-    const isBold = true
-    return `<text x="${pt.x.toFixed(1)}" y="${pt.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="16" font-weight="${isBold ? 'bold' : 'normal'}" font-family="sans-serif" transform="rotate(${rot}, ${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})">${label}</text>`
+    return `<text x="${pt.x.toFixed(1)}" y="${pt.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="16" font-weight="bold" font-family="sans-serif" transform="rotate(${rot}, ${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})">${label}</text>`
   }).join('\n  ')
 
-  // Ring labels in Economic sector (bottom)
+  // Ring labels in Economic sector
   const ringLabelLines = RINGS.map((ring, i) => {
     const radii = [0.30, 0.57, 0.83]
-    const r = INRADIUS * radii[i]
+    const r = INRADIUS * (radii[i] ?? 0.5) * sc
     const a = deg(SECTOR_ANGLE_DEG.economic)
     const x = r * Math.cos(a)
     const y = r * Math.sin(a) - 14
@@ -180,7 +205,7 @@ export function buildExportSvg(diagram: Diagram): string {
     </marker>
   </defs>`
 
-  // System node
+  // System node (fixed size, not scaled with diagramScale)
   const systemNode = `<ellipse cx="0" cy="0" rx="55" ry="35" fill="${SYSTEM_COLOR}"/>
   <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="bold" font-family="sans-serif" fill="white">${escapeXml(diagram.system)}</text>`
 
@@ -192,23 +217,30 @@ export function buildExportSvg(diagram: Diagram): string {
     return `<path d="${bezierPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}" fill="none" stroke="#171717" stroke-width="2" marker-end="url(#arrow)"/>`
   }).filter(Boolean).join('\n  ')
 
-  // Item nodes
+  // Item nodes: auto-height, text-wrapping, match canvas rendering
   const itemNodes = diagram.items.map((item) => {
     const pos = positions.get(item.id)
     if (!pos) return ''
-    const color = POLARITY_COLORS[item.polarity]
-    const x = pos.x - ITEM_W / 2
-    const y = pos.y - ITEM_H / 2
-    const text = `${item.code}) ${item.label} (${item.polarity === 'positive' ? '+' : '-'})`
-    const words = text.split(' ')
-    // Split into 2 lines roughly
-    const mid = Math.ceil(words.length / 2)
-    const line1 = words.slice(0, mid).join(' ')
-    const line2 = words.slice(mid).join(' ')
+    const color = item.color ?? POLARITY_COLORS[item.polarity]
+    const w = item.width ?? EXPORT_ITEM_W
+    const h = estimateExportH(item)
+    const rx = pos.x - w / 2
+    const ry = pos.y - h / 2
+    const charsPerLine = Math.max(5, Math.floor(w / 7))
+    const labelText = `${item.label} (${item.polarity === 'positive' ? '+' : '-'})`
+    const labelLines = wrapText(labelText, charsPerLine)
+    // Code: top-pad(6) + half line-height(7.5) = 13.5 from card top
+    const codeY = ry + 13.5
+    // Label: after code (15px line) + gap to label start
+    const labelStartY = ry + 6 + 15 + 8.5
+    const codeEl = `<text x="${pos.x.toFixed(1)}" y="${codeY.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="bold" letter-spacing="0.5" font-family="sans-serif" fill="white">${escapeXml(item.code)}</text>`
+    const labelEls = labelLines.map((line, i) =>
+      `<text x="${pos.x.toFixed(1)}" y="${(labelStartY + i * 17).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" font-family="sans-serif" fill="white">${escapeXml(line)}</text>`
+    ).join('\n    ')
     return `<g>
-    <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${ITEM_W}" height="${ITEM_H}" rx="4" fill="${color}"/>
-    <text x="${pos.x.toFixed(1)}" y="${(pos.y - 8).toFixed(1)}" text-anchor="middle" font-size="10" font-family="sans-serif" fill="white">${escapeXml(line1)}</text>
-    <text x="${pos.x.toFixed(1)}" y="${(pos.y + 6).toFixed(1)}" text-anchor="middle" font-size="10" font-family="sans-serif" fill="white">${escapeXml(line2)}</text>
+    <rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${w}" height="${h}" rx="4" fill="${color}" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    ${codeEl}
+    ${labelEls}
   </g>`
   }).join('\n  ')
 

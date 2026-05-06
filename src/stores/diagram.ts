@@ -121,6 +121,12 @@ export const useDiagramStore = defineStore(
     function setDiagramScale(scale: number): void {
       record()
       diagram.value.diagramScale = Math.max(0.3, Math.min(2, scale))
+      const newScale = diagram.value.diagramScale
+      const offsets = computeForceLayout(diagram.value.items, newScale)
+      for (const item of diagram.value.items) {
+        const off = offsets.get(item.id)
+        if (off) { item.dx = off.dx; item.dy = off.dy }
+      }
     }
 
     function updateItem(id: string, patch: Partial<Omit<Item, 'id'>>): void {
