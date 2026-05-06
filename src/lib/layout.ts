@@ -7,16 +7,16 @@ export interface LayoutPosition {
 }
 
 const DEFAULT_W = 90
-const DEFAULT_H = 50
-const MARGIN = 10
+const DEFAULT_H = 60
+const MARGIN = 12
 
-// Estimate rendered card height from text content (9px font, leading-tight ~11px/line, p-1 padding)
+// Estimate rendered card height from text content (12px font, leading-snug ~17px/line, p-1.5 padding)
 function estimateH(item: Item): number {
   if (item.height !== undefined) return item.height
   const w = item.width ?? DEFAULT_W
-  const charsPerLine = Math.max(6, Math.floor(w / 6))
+  const charsPerLine = Math.max(5, Math.floor(w / 7))
   const lines = Math.ceil(item.label.length / charsPerLine)
-  return Math.max(DEFAULT_H, 4 + 13 + Math.max(1, lines) * 11 + 4)
+  return Math.max(DEFAULT_H, 6 + 15 + Math.max(1, lines) * 17 + 6)
 }
 
 // Fast layout for reactive use - just slot geometry + user offsets, no collision pass.
@@ -67,9 +67,9 @@ export function computeForceLayout(
 
   // Position-based dynamics: no velocity, so items can't fly away.
   // Each iteration: pull items toward ideal slot, then push overlapping pairs apart.
-  const K_ATTR = 0.04    // fraction of distance to ideal corrected per iteration
-  const PUSH = 0.65      // fraction of overlap resolved per pair per iteration
-  const ITERATIONS = 600
+  const K_ATTR = 0.03    // fraction of distance to ideal corrected per iteration
+  const PUSH = 0.72      // fraction of overlap resolved per pair per iteration
+  const ITERATIONS = 800
 
   for (let iter = 0; iter < ITERATIONS; iter++) {
     // Attraction toward ideal slot (direct position correction)
@@ -106,6 +106,45 @@ export function computeForceLayout(
             const sign = dy >= 0 ? 1 : -1
             a.y -= sign * push / 2
             b.y += sign * push / 2
+          }
+        }
+      }
+    }
+  }
+
+  // Phase 2: deterministic constraint separation - push until no overlaps remain.
+  // No attraction, full resolution per pair. Guarantees zero overlaps if space allows.
+  let dirty = true
+  let pass = 0
+  while (dirty && pass < 400) {
+    dirty = false
+    pass++
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const a = pos.get(items[i]!.id)!
+        const b = pos.get(items[j]!.id)!
+        const hw_a = (items[i]!.width ?? DEFAULT_W) / 2 + MARGIN / 2
+        const hh_a = estimateH(items[i]!) / 2 + MARGIN / 2
+        const hw_b = (items[j]!.width ?? DEFAULT_W) / 2 + MARGIN / 2
+        const hh_b = estimateH(items[j]!) / 2 + MARGIN / 2
+
+        const dx = b.x - a.x
+        const dy = b.y - a.y
+        const overlapX = hw_a + hw_b - Math.abs(dx)
+        const overlapY = hh_a + hh_b - Math.abs(dy)
+
+        if (overlapX > 0 && overlapY > 0) {
+          dirty = true
+          if (overlapX <= overlapY) {
+            const half = overlapX / 2 + 0.5
+            const sign = dx >= 0 ? 1 : -1
+            a.x -= sign * half
+            b.x += sign * half
+          } else {
+            const half = overlapY / 2 + 0.5
+            const sign = dy >= 0 ? 1 : -1
+            a.y -= sign * half
+            b.y += sign * half
           }
         }
       }

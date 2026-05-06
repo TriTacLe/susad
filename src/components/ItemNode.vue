@@ -158,9 +158,9 @@ function onResizeUp(e: PointerEvent): void {
     @keydown.space.prevent="emit('select', item.id)"
   >
     <!-- Text content; overflow-hidden only when height is manually fixed -->
-    <div class="p-1 pointer-events-none w-full" :class="item.height !== undefined ? 'overflow-hidden h-full' : ''">
-      <p class="text-[11px] leading-tight font-bold" :class="item.height !== undefined ? 'truncate' : ''">{{ item.code }}</p>
-      <p class="text-[11px] leading-snug font-medium" :class="item.height !== undefined ? 'line-clamp-3' : ''">{{ item.label }} ({{ item.polarity === 'positive' ? '+' : '-' }})</p>
+    <div class="p-1.5 pointer-events-none w-full antialiased" :class="item.height !== undefined ? 'overflow-hidden h-full' : ''">
+      <p class="text-[12px] leading-tight font-bold tracking-wide" :class="item.height !== undefined ? 'truncate' : ''">{{ item.code }}</p>
+      <p class="text-[12px] leading-snug font-semibold" :class="item.height !== undefined ? 'line-clamp-3' : ''">{{ item.label }} ({{ item.polarity === 'positive' ? '+' : '-' }})</p>
     </div>
 
     <!-- Resize handles: 4 corners, outside overflow-hidden wrapper so always hittable -->
