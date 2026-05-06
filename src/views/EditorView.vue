@@ -25,6 +25,7 @@ const clipboard = ref<Item | null>(null)
 // Confirm dialogs
 const confirmNewOpen = ref(false)
 const confirmOpenOpen = ref(false)
+const confirmClearOpen = ref(false)
 
 function saveFile(): void {
   const json = diagramToJson(store.getDiagramSnapshot())
@@ -80,6 +81,14 @@ function onNewDiscard(): void {
 }
 
 // Open file flow
+function onClearDiagram(): void {
+  if (store.isDirty) {
+    confirmClearOpen.value = true
+  } else {
+    store.reset()
+  }
+}
+
 function onOpen(): void {
   if (store.isDirty) {
     confirmOpenOpen.value = true
@@ -185,6 +194,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       :diagram-scale="store.diagram.diagramScale ?? 1"
       :has-pending-changes="store.hasPendingChanges"
       @new="onNew"
+      @clear-diagram="onClearDiagram"
       @open="onOpen"
       @save="saveFile"
       @export-svg="downloadSvg(store.getDiagramSnapshot())"
@@ -307,6 +317,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       :suggest-code="store.suggestItemCode"
       @close="showAddDialog = false"
       @add="onAddItem($event)"
+    />
+
+    <!-- Clear diagram confirm -->
+    <ConfirmDialog
+      :open="confirmClearOpen"
+      :title="t.clearConfirmTitle"
+      :message="t.clearConfirmMsg"
+      :primary-label="t.clearConfirm"
+      :cancel-label="t.cancel"
+      @primary="confirmClearOpen = false; store.reset()"
+      @cancel="confirmClearOpen = false"
     />
 
     <!-- New diagram confirm -->

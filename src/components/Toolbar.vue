@@ -23,6 +23,7 @@ const emit = defineEmits<{
   undo: []
   redo: []
   cancelConnect: []
+  clearDiagram: []
   cleanupLayout: []
   fitView: []
   diagramScale: [scale: number]
@@ -40,6 +41,7 @@ function onScaleInput(e: Event): void {
     <span class="font-semibold text-sm mr-2">{{ t.appName }}</span>
 
     <button class="btn" :title="t.new" @click="emit('new')">{{ t.new }}</button>
+    <button class="btn" :title="t.clearDiagram" @click="emit('clearDiagram')">{{ t.clearDiagram }}</button>
     <button class="btn" :title="t.open" @click="emit('open')">{{ t.open }}</button>
     <button class="btn relative" :title="t.save" @click="emit('save')">
       {{ t.save }}

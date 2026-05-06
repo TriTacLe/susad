@@ -60,6 +60,10 @@ export const UI: Record<Locale, Record<string, string>> = {
     unsaved: 'Unsaved changes',
     emptyState: 'Click "+ Add item" below or in the panel on the left to get started.',
     emptyStateTitle: 'No items yet',
+    clearDiagram: 'Clear',
+    clearConfirmTitle: 'Clear diagram',
+    clearConfirmMsg: 'This will remove all items and edges. This cannot be undone. Continue?',
+    clearConfirm: 'Clear diagram',
   },
   no: {
     appName: 'SusAD',
@@ -120,6 +124,10 @@ export const UI: Record<Locale, Record<string, string>> = {
     unsaved: 'Ulagrede endringer',
     emptyState: 'Klikk "+ Legg til element" nedenfor eller i panelet til venstre for å komme i gang.',
     emptyStateTitle: 'Ingen elementer enda',
+    clearDiagram: 'Tøm',
+    clearConfirmTitle: 'Tøm diagram',
+    clearConfirmMsg: 'Dette fjerner alle elementer og piler. Dette kan ikke angres. Fortsette?',
+    clearConfirm: 'Tøm diagram',
   },
 }
 
