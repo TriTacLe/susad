@@ -126,14 +126,22 @@ function ringLabel(r: Ring): string {
     </div>
 
     <!-- No selection -->
-    <div v-if="!selectedItem && !selectedEdge" class="px-3 py-4 text-xs text-[#737373]">
-      <p>{{ t.selectPrompt }}</p>
-      <p class="mt-2">{{ t.connectPrompt }}</p>
+    <div v-if="!selectedItem && !selectedEdge" class="px-4 py-6 flex flex-col items-center gap-3 text-center text-xs text-[#737373]">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="8" y="10" width="24" height="18" rx="3" stroke="#d4d4d4" stroke-width="1.5" fill="#f5f5f5"/>
+        <rect x="12" y="14" width="10" height="2" rx="1" fill="#d4d4d4"/>
+        <rect x="12" y="18" width="16" height="2" rx="1" fill="#d4d4d4"/>
+        <rect x="12" y="22" width="8" height="2" rx="1" fill="#d4d4d4"/>
+        <circle cx="30" cy="28" r="7" fill="#e8f0fe" stroke="#1d4ed8" stroke-width="1.5"/>
+        <path d="M27.5 28h5M30 25.5v5" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <p class="leading-snug">{{ t.selectPrompt }}</p>
+      <p class="leading-snug">{{ t.connectPrompt }}</p>
     </div>
 
     <!-- Selected item -->
     <div v-else-if="selectedItem" class="flex flex-col gap-3 px-3 py-3">
-      <h3 class="text-sm font-semibold">{{ t.itemLabel }}: {{ selectedItem.id }}</h3>
+      <h3 class="text-sm font-semibold">{{ t.itemLabel }}: {{ selectedItem.code }}</h3>
 
       <div>
         <label class="block text-xs font-medium mb-1" for="insp-code">{{ t.code }}</label>
@@ -205,16 +213,16 @@ function ringLabel(r: Ring): string {
             id="insp-color"
             :value="effectiveColor"
             type="color"
-            class="w-8 h-8 border border-[#d4d4d4] rounded cursor-pointer"
+            class="w-11 h-11 border border-[#d4d4d4] rounded cursor-pointer p-0.5"
             @input="(e) => { localColor = (e.target as HTMLInputElement).value; patchLive({ color: localColor }) }"
             @blur="commitItem"
           />
           <button
             v-if="localColor"
-            class="text-xs text-[#737373] underline focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+            class="text-xs text-[#737373] underline focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8] min-h-[44px] px-1"
             @click="localColor = ''; commitItem()"
           >
-            Reset
+            {{ t.resetColor }}
           </button>
           <span v-else class="text-xs text-[#737373]">{{ t.colorHint }}</span>
         </div>

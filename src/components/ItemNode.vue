@@ -38,7 +38,6 @@ const style = computed(() => {
     minHeight: `${DEFAULT_H}px`,
     transform: 'translate(-50%, -50%)',
   }
-  // Only fix height if user has manually resized; otherwise auto-size to content
   if (props.item.height !== undefined) return { ...base, height: `${cardH.value}px`, minHeight: undefined }
   return base
 })
@@ -52,7 +51,7 @@ const ringLabel = computed(() =>
 )
 
 const polarityLabel = computed(() => props.item.polarity === 'positive' ? '+' : '-')
-const polarityBg = computed(() => props.item.polarity === 'positive' ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)')
+const polarityColor = computed(() => props.item.polarity === 'positive' ? '#15803d' : '#b45309')
 
 // --- Drag ---
 const dragging = ref(false)
@@ -149,9 +148,8 @@ function onResizeUp(e: PointerEvent): void {
   <div
     data-item="true"
     :style="{ ...style, backgroundColor: bgColor }"
-    class="absolute rounded shadow-sm border border-white/20 text-white select-none touch-none flex flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d4ed8]"
+    class="absolute rounded shadow border border-white/20 text-white select-none touch-none flex flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d4ed8]"
     :class="{
-      'overflow-hidden': item.height !== undefined,
       'outline outline-2 outline-offset-2 outline-[#1d4ed8]': selected && !connectMode,
       'outline outline-2 outline-offset-2 outline-dashed outline-[#1d4ed8]': connectMode && !isConnectSource,
       'cursor-grab': !connectMode && !dragging,
@@ -168,16 +166,12 @@ function onResizeUp(e: PointerEvent): void {
     @keydown.enter="emit('select', item.id)"
     @keydown.space.prevent="emit('select', item.id)"
   >
-    <!-- Header: code badge + polarity pill -->
+    <!-- Header: code badge -->
     <div
-      class="pointer-events-none flex items-center justify-between gap-1 px-1.5 pt-1.5 pb-1"
+      class="pointer-events-none flex items-center px-1.5 pt-1.5 pb-1"
       style="background: rgba(0,0,0,0.2)"
     >
-      <span class="text-[12px] font-bold tracking-wider leading-none truncate">{{ item.code }}</span>
-      <span
-        class="text-[11px] font-bold leading-none px-1 py-0.5 rounded flex-shrink-0"
-        :style="{ background: polarityBg }"
-      >{{ polarityLabel }}</span>
+      <span class="text-[13px] font-bold tracking-wider leading-none truncate">{{ item.code }}</span>
     </div>
 
     <!-- Body: label -->
@@ -186,20 +180,24 @@ function onResizeUp(e: PointerEvent): void {
       :class="item.height !== undefined ? 'overflow-hidden' : ''"
     >
       <p
-        class="text-[12px] leading-snug font-medium"
+        class="text-[13px] leading-snug font-medium"
         :class="item.height !== undefined ? 'line-clamp-3' : ''"
       >{{ item.label }}</p>
     </div>
 
-    <!-- Footer: ring name -->
+    <!-- Polarity badge: floats outside top-right corner -->
     <div
-      class="pointer-events-none px-1.5 pb-1 pt-0.5"
-      style="background: rgba(0,0,0,0.15)"
-    >
-      <span class="text-[11px] uppercase tracking-widest font-semibold leading-none">{{ ringLabel }}</span>
+      class="absolute -top-3 -right-3 w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold shadow-md pointer-events-none z-10"
+      :style="{ backgroundColor: polarityColor, border: '2px solid white' }"
+      aria-hidden="true"
+    >{{ polarityLabel }}</div>
+
+    <!-- Ring label: floats outside bottom center -->
+    <div class="absolute -bottom-4 left-0 right-0 flex justify-center pointer-events-none z-10">
+      <span class="text-[10px] uppercase tracking-widest font-bold bg-white/90 text-[#171717] px-2 py-0.5 rounded-full shadow-sm leading-none whitespace-nowrap">{{ ringLabel }}</span>
     </div>
 
-    <!-- Resize handles: 4 corners, outside overflow-hidden wrapper so always hittable -->
+    <!-- Resize handles -->
     <template v-if="selected && !connectMode">
       <div
         class="absolute top-0 left-0 w-5 h-5 cursor-nw-resize touch-none flex items-start justify-start pl-[3px] pt-[3px]"
@@ -236,7 +234,6 @@ function onResizeUp(e: PointerEvent): void {
       </div>
       <div
         class="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize touch-none flex items-end justify-end pr-[3px] pb-[3px]"
-        style=""
         aria-hidden="true"
         @pointerdown.stop="onResizeDown($event, 1, 1)"
         @pointermove="onResizeMove"

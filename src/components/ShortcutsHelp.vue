@@ -61,7 +61,7 @@ function onKeydown(e: KeyboardEvent): void {
     @keydown="onKeydown"
     @click.self="emit('close')"
   >
-    <div ref="dialogRef" class="bg-white border border-[#d4d4d4] rounded p-6 w-[420px] max-h-[80vh] overflow-y-auto shadow-sm">
+    <div ref="dialogRef" class="bg-white border border-[#d4d4d4] rounded p-6 w-[420px] max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-y-auto shadow-sm">
       <div class="flex items-center justify-between mb-4">
         <h2 id="shortcuts-title" class="text-base font-semibold">{{ t.shortcutHelpTitle }}</h2>
         <button
@@ -69,7 +69,7 @@ function onKeydown(e: KeyboardEvent): void {
           class="px-3 py-1.5 text-sm border border-[#d4d4d4] rounded hover:bg-[#f5f5f5] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
           @click="emit('close')"
         >
-          {{ t.cancel }}
+          {{ t.close }}
         </button>
       </div>
 

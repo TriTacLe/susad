@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { List, SlidersHorizontal } from 'lucide-vue-next'
 import { useDiagramStore } from '@/stores/diagram'
 import { wouldOverlap } from '@/lib/layout'
 import { parseFile, parseDiagram, diagramToJson, downloadSvg, downloadPng } from '@/lib/importExport'
@@ -28,6 +29,14 @@ const showShortcuts = ref(false)
 const showOnboarding = ref(false)
 const deletionToast = ref('')
 let toastTimer: ReturnType<typeof setTimeout> | null = null
+
+const windowWidth = ref(window.innerWidth)
+const isMobile = computed(() => windowWidth.value < 1024)
+const mobilePanel = ref<'list' | 'inspector' | null>(null)
+
+function onResize(): void {
+  windowWidth.value = window.innerWidth
+}
 
 // Confirm dialogs
 const confirmNewOpen = ref(false)
@@ -218,17 +227,24 @@ watch(
 onMounted(() => {
   window.addEventListener('keydown', onKeydown)
   window.addEventListener('beforeunload', onBeforeUnload)
+  window.addEventListener('resize', onResize)
   if (!store.isDirty) {
     store.load(parseDiagram(exampleDiagram))
     store.markSaved()
     if (!localStorage.getItem('susad-onboarded')) {
       showOnboarding.value = true
     }
+  } else if (store.diagram.items.length > 0 && store.diagram.items.every(i => i.dx === 0 && i.dy === 0)) {
+    // Persisted diagram has no layout offsets applied - run force layout silently
+    store.resetLayout()
+    store.markSaved()
   }
+  nextTick(() => canvasRef.value?.fitToScreen())
 })
 onUnmounted(() => {
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('beforeunload', onBeforeUnload)
+  window.removeEventListener('resize', onResize)
   if (toastTimer) clearTimeout(toastTimer)
 })
 </script>
@@ -262,6 +278,7 @@ onUnmounted(() => {
       @cancel-connect="store.cancelConnect()"
       @cleanup-layout="store.resetLayout()"
       @fit-view="canvasRef?.fitToScreen()"
+      @diagram-scale-live="store.setDiagramScaleLive($event)"
       @diagram-scale="store.setDiagramScale($event)"
       @show-shortcuts="showShortcuts = true"
     />
@@ -276,28 +293,28 @@ onUnmounted(() => {
       <button class="ml-3 underline text-xs" @click="importError = ''">Dismiss</button>
     </div>
 
-    <!-- Onboarding banner -->
-    <div
-      v-if="showOnboarding"
-      class="px-4 py-2 text-sm bg-blue-50 border-b border-blue-200 text-blue-800 flex items-center justify-between"
-      role="status"
-    >
-      <span>{{ t.onboardingBanner }}</span>
-      <button
-        class="ml-3 text-xs underline focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
-        @click="showOnboarding = false; localStorage.setItem('susad-onboarded', '1')"
-      >{{ t.onboardingDismiss }}</button>
-    </div>
-
-    <main id="main-canvas" tabindex="-1" class="relative flex flex-1 overflow-hidden">
+    <main id="main-canvas" tabindex="-1" class="relative flex flex-1 overflow-hidden" :class="isMobile ? 'pb-14' : ''">
       <!-- Deletion toast -->
       <div
-        class="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 px-4 py-2 text-sm bg-[#171717] text-white rounded shadow-md transition-opacity"
-        :class="deletionToast ? 'opacity-100' : 'opacity-0 pointer-events-none'"
+        class="absolute left-1/2 -translate-x-1/2 z-20 px-4 py-2 text-sm bg-[#171717] text-white rounded shadow-md transition-opacity"
+        :class="[deletionToast ? 'opacity-100' : 'opacity-0 pointer-events-none', isMobile ? 'bottom-20' : 'bottom-16']"
         role="status"
         aria-live="polite"
       >
         {{ deletionToast }}
+      </div>
+
+      <!-- Onboarding overlay -->
+      <div
+        v-if="showOnboarding"
+        class="absolute top-3 left-1/2 -translate-x-1/2 z-20 max-w-sm w-[calc(100%-2rem)] px-4 py-3 text-sm bg-blue-50 border border-blue-200 text-blue-800 rounded-lg shadow-md flex items-start gap-3"
+        role="status"
+      >
+        <span class="flex-1 leading-snug">{{ t.onboardingBanner }}</span>
+        <button
+          class="shrink-0 text-xs underline focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+          @click="showOnboarding = false; localStorage.setItem('susad-onboarded', '1')"
+        >{{ t.onboardingDismiss }}</button>
       </div>
 
       <!-- Connect mode banner -->
@@ -310,8 +327,8 @@ onUnmounted(() => {
         {{ t.connectModeMsg }}
       </div>
 
-      <!-- Reopen sidebar buttons when hidden -->
-      <div class="absolute top-2 left-2 z-10 flex gap-1">
+      <!-- Reopen sidebar buttons when hidden (desktop only) -->
+      <div v-if="!isMobile" class="absolute top-2 left-2 z-10 flex gap-1">
         <button
           v-if="!showList"
           class="px-2 py-1 text-xs border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
@@ -320,25 +337,26 @@ onUnmounted(() => {
           {{ t.itemList }}
         </button>
       </div>
-      <div class="absolute top-2 right-2 z-10 flex gap-1">
+      <div v-if="!isMobile" class="absolute top-2 right-2 z-10 flex gap-1">
         <button
           v-if="!showInspector"
           class="px-2 py-1 text-xs border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
           @click="showInspector = true"
         >
-          {{ t.details ?? 'Details' }}
+          {{ t.details }}
         </button>
       </div>
 
       <ItemList
-        v-show="showList"
+        v-show="isMobile ? mobilePanel === 'list' : showList"
+        :class="isMobile ? 'absolute top-0 left-0 bottom-0 right-0 z-30 !w-auto' : ''"
         :items="store.diagram.items"
         :selected-id="store.selectedId"
         :locale="store.diagram.locale"
         @select="store.select($event)"
         @delete="store.deleteItem($event)"
         @add-item="showAddDialog = true"
-        @close="showList = false"
+        @close="isMobile ? mobilePanel = null : showList = false"
       />
 
       <DiagramCanvas
@@ -363,7 +381,8 @@ onUnmounted(() => {
       />
 
       <Inspector
-        v-show="showInspector"
+        v-show="isMobile ? mobilePanel === 'inspector' : showInspector"
+        :class="isMobile ? 'absolute top-0 left-0 bottom-0 right-0 z-30 !w-auto' : ''"
         :selected-item="store.selectedItem"
         :selected-edge="store.selectedEdge"
         :system-name="store.diagram.system"
@@ -378,8 +397,34 @@ onUnmounted(() => {
         @start-connect="store.startConnect($event)"
         @patch-system-live="store.patchSystemLive($event)"
         @commit-system="store.commitSystem($event)"
-        @close="showInspector = false"
+        @close="isMobile ? mobilePanel = null : showInspector = false"
       />
+
+      <!-- Mobile bottom tab bar -->
+      <nav
+        v-if="isMobile"
+        class="absolute bottom-0 left-0 right-0 h-14 flex border-t border-[#d4d4d4] bg-white z-20"
+        :aria-label="t.itemList + ' / ' + t.details"
+      >
+        <button
+          class="flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium focus:outline focus:outline-2 focus:outline-offset-[-2px] focus:outline-[#1d4ed8]"
+          :class="mobilePanel === 'list' ? 'text-[#1d4ed8] bg-blue-50' : 'text-[#525252]'"
+          :aria-pressed="mobilePanel === 'list'"
+          @click="mobilePanel = mobilePanel === 'list' ? null : 'list'"
+        >
+          <List :size="20" aria-hidden="true" />
+          {{ t.itemList }}
+        </button>
+        <button
+          class="flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium border-l border-[#d4d4d4] focus:outline focus:outline-2 focus:outline-offset-[-2px] focus:outline-[#1d4ed8]"
+          :class="mobilePanel === 'inspector' ? 'text-[#1d4ed8] bg-blue-50' : 'text-[#525252]'"
+          :aria-pressed="mobilePanel === 'inspector'"
+          @click="mobilePanel = mobilePanel === 'inspector' ? null : 'inspector'"
+        >
+          <SlidersHorizontal :size="20" aria-hidden="true" />
+          {{ t.details }}
+        </button>
+      </nav>
     </main>
 
     <!-- Hidden file input -->

@@ -64,7 +64,7 @@ function onKeydown(e: KeyboardEvent): void {
     @keydown="onKeydown"
     @click.self="emit('cancel')"
   >
-    <div ref="dialogRef" class="bg-white border border-[#d4d4d4] rounded p-6 w-[360px] shadow-sm">
+    <div ref="dialogRef" class="bg-white border border-[#d4d4d4] rounded p-6 w-[360px] max-w-[calc(100vw-2rem)] shadow-sm">
       <h2 id="confirm-title" class="text-base font-semibold mb-2">{{ title }}</h2>
       <p class="text-sm text-[#525252] mb-5">{{ message }}</p>
 

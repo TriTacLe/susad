@@ -82,8 +82,8 @@ export function slotPosition(
   const col = index % cols
   const row = Math.floor(index / cols)
 
-  const perpOffset = (col - (cols - 1) / 2) * 110 * scale
-  const radialOffset = (row - (rows - 1) / 2) * 85 * scale
+  const perpOffset = (col - (cols - 1) / 2) * 130 * scale
+  const radialOffset = (row - (rows - 1) / 2) * 120 * scale
 
   return {
     x: center.x + perp.x * perpOffset + radial.x * radialOffset,

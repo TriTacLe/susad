@@ -275,29 +275,31 @@ const edgesWithCoords = computed(() =>
     <!-- Zoom controls (viewport-fixed, bottom-right) -->
     <div class="absolute bottom-4 right-4 flex flex-col gap-1 z-10">
       <button
-        class="w-11 h-11 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-sm font-bold focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+        class="w-11 h-11 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-lg font-bold focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
         :title="t.zoomIn"
+        :aria-label="t.zoomIn"
         @pointerdown.stop
         @click="zoomBy(1.2)"
-      >
-        +
-      </button>
+      >+</button>
+      <div
+        class="w-11 h-8 flex items-center justify-center border border-[#d4d4d4] rounded bg-white text-[11px] font-semibold tabular-nums text-[#404040] select-none"
+        aria-live="polite"
+        :title="`${t.scale}: ${Math.round(zoom * 100)}%`"
+      >{{ Math.round(zoom * 100) }}%</div>
       <button
-        class="w-11 h-11 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-sm font-bold focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+        class="w-11 h-11 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-lg font-bold focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
         :title="t.zoomOut"
+        :aria-label="t.zoomOut"
         @pointerdown.stop
         @click="zoomBy(1 / 1.2)"
-      >
-        -
-      </button>
+      >-</button>
       <button
-        class="w-11 h-11 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-[10px] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+        class="w-11 h-8 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-[10px] font-medium focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
         :title="t.resetZoom"
+        :aria-label="t.resetZoom"
         @pointerdown.stop
         @click="resetZoom"
-      >
-        1:1
-      </button>
+      >1:1</button>
     </div>
 
     <!-- Empty state (viewport-fixed so it doesn't zoom) -->

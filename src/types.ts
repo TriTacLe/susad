@@ -54,14 +54,14 @@ export const SECTOR_LABELS: Record<Locale, Record<Sector, string>> = {
 
 export const RING_LABELS: Record<Locale, Record<Ring, string>> = {
   en: {
-    immediate: 'Immediate',
-    enabling: 'Enabling',
-    structural: 'Structural',
+    immediate: 'Right away',
+    enabling: 'Enables',
+    structural: 'Long-term',
   },
   no: {
-    immediate: 'Umiddelbar',
-    enabling: 'Muliggjørende',
-    structural: 'Strukturell',
+    immediate: 'Med en gang',
+    enabling: 'Muliggjør',
+    structural: 'Langsiktig',
   },
 }
 

@@ -123,6 +123,20 @@ export const useDiagramStore = defineStore(
       selectedId.value = id
     }
 
+    // Live update during slider drag: scale dx/dy proportionally, no force layout, no history record.
+    // Items stay in relative positions; full layout resolves on commit.
+    function setDiagramScaleLive(newScale: number): void {
+      const clamped = Math.max(0.3, Math.min(2.5, newScale))
+      const oldScale = diagram.value.diagramScale ?? 1
+      if (clamped === oldScale) return
+      const ratio = clamped / oldScale
+      for (const item of diagram.value.items) {
+        item.dx = item.dx * ratio
+        item.dy = item.dy * ratio
+      }
+      diagram.value.diagramScale = clamped
+    }
+
     function setDiagramScale(scale: number): void {
       record()
       diagram.value.diagramScale = Math.max(0.3, Math.min(2.5, scale))
@@ -294,6 +308,7 @@ export const useDiagramStore = defineStore(
       patchSystemLive,
       commitSystem,
       setLocale,
+      setDiagramScaleLive,
       setDiagramScale,
       addItem,
       updateItem,
@@ -317,6 +332,7 @@ export const useDiagramStore = defineStore(
   {
     persist: {
       pick: ['diagram'],
+      debounce: 100,
     },
   },
 )

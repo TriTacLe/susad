@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { ChevronLeft } from 'lucide-vue-next'
 import type { Item, Locale } from '@/types'
+import { SECTOR_LABELS, RING_LABELS } from '@/types'
 import { useT } from '@/lib/i18n'
 
 const props = defineProps<{
@@ -19,10 +20,6 @@ const emit = defineEmits<{
 
 const t = computed(() => useT(props.locale))
 const focusedIndex = ref(-1)
-
-function polarityClass(polarity: Item['polarity']): string {
-  return polarity === 'positive' ? 'text-[#15803d]' : 'text-[#b45309]'
-}
 
 function onListFocus(): void {
   if (focusedIndex.value < 0 && props.items.length > 0) {
@@ -96,21 +93,21 @@ function onListKeydown(e: KeyboardEvent): void {
         :id="`item-opt-${item.id}`"
         role="option"
         :aria-selected="selectedId === item.id"
-        class="flex items-start gap-2 px-3 py-2 cursor-pointer hover:bg-[#f0f0f0] border-b border-[#ebebeb] last:border-b-0"
-        :class="{ 'bg-[#e8f0fe]': selectedId === item.id, 'ring-1 ring-inset ring-[#1d4ed8]': focusedIndex === idx }"
+        class="flex items-start gap-2 px-3 py-2 cursor-pointer hover:bg-[#f0f0f0] border-b border-[#ebebeb] last:border-b-0 border-l-4"
+        :class="{
+          'bg-[#e8f0fe]': selectedId === item.id,
+          'ring-1 ring-inset ring-[#1d4ed8]': focusedIndex === idx,
+          'border-l-[#15803d]': item.polarity === 'positive',
+          'border-l-[#b45309]': item.polarity === 'negative',
+        }"
         tabindex="-1"
         @click="selectAndFocus(idx, item.id)"
       >
-        <span
-          class="text-xs font-mono mt-0.5 shrink-0"
-          :class="polarityClass(item.polarity)"
-          aria-hidden="true"
-        >{{ item.polarity === 'positive' ? '+' : '-' }}</span>
         <span class="sr-only">{{ item.polarity === 'positive' ? t.polarityPositive : t.polarityNegative }}</span>
         <div class="min-w-0">
           <p class="text-xs font-semibold truncate">{{ item.code }}</p>
-          <p class="text-xs text-[#525252] leading-tight">{{ item.label }}</p>
-          <p class="text-[11px] text-[#595959] capitalize">{{ item.sector }} / {{ item.ring }}</p>
+          <p class="text-xs text-[#525252] leading-tight line-clamp-2">{{ item.label }}</p>
+          <p class="text-[11px] text-[#595959]">{{ SECTOR_LABELS[locale][item.sector] }} / {{ RING_LABELS[locale][item.ring] }}</p>
         </div>
       </li>
       <li v-if="items.length === 0" class="px-3 py-4 text-xs text-[#737373] text-center">

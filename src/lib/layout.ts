@@ -198,7 +198,7 @@ export function computeForceLayout(
   // No attraction, full resolution per pair. Guarantees zero overlaps if space allows.
   let dirty = true
   let pass = 0
-  while (dirty && pass < 400) {
+  while (dirty && pass < 1000) {
     dirty = false
     pass++
     for (let i = 0; i < items.length; i++) {

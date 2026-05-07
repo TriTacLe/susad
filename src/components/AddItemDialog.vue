@@ -115,7 +115,7 @@ function onKeydown(e: KeyboardEvent): void {
     @keydown="onKeydown"
     @click.self="emit('close')"
   >
-    <div ref="dialogRef" class="bg-white border border-[#d4d4d4] rounded p-6 w-[360px] shadow-sm">
+    <div ref="dialogRef" class="bg-white border border-[#d4d4d4] rounded p-6 w-[360px] max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto shadow-sm">
       <h2 id="dialog-title" class="text-base font-semibold mb-4">{{ t.addItemTitle }}</h2>
 
       <div v-if="error" id="add-error-msg" class="mb-3 text-sm text-red-700 border border-red-300 bg-red-50 rounded px-3 py-2" role="alert">
@@ -194,17 +194,17 @@ function onKeydown(e: KeyboardEvent): void {
         </fieldset>
       </div>
 
-      <div class="flex justify-end gap-2 mt-5">
+      <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-5">
         <button
           type="button"
-          class="px-3 py-1.5 text-sm border border-[#d4d4d4] rounded hover:bg-[#f5f5f5] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+          class="px-3 py-2 text-sm border border-[#d4d4d4] rounded hover:bg-[#f5f5f5] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8] min-h-[44px]"
           @click="emit('close')"
         >
           {{ t.cancel }}
         </button>
         <button
           type="button"
-          class="px-3 py-1.5 text-sm bg-[#1d4ed8] text-white rounded hover:bg-[#1e40af] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+          class="px-3 py-2 text-sm bg-[#1d4ed8] text-white rounded hover:bg-[#1e40af] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8] min-h-[44px]"
           @click="submit"
         >
           {{ t.addItem }}
