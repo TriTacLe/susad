@@ -9,11 +9,13 @@ const props = defineProps<{
   x2: number
   y2: number
   selected: boolean
+  scale?: number
 }>()
 
 defineEmits<{ click: [id: string] }>()
 
 const path = computed(() => bezierPath(props.x1, props.y1, props.x2, props.y2))
+const sw = computed(() => 2 * (props.scale ?? 1))
 </script>
 
 <template>
@@ -40,7 +42,7 @@ const path = computed(() => bezierPath(props.x1, props.y1, props.x2, props.y2))
       :d="path"
       fill="none"
       :stroke="selected ? '#1d4ed8' : '#171717'"
-      stroke-width="2"
+      :stroke-width="sw"
       :marker-end="selected ? 'url(#arrow-selected)' : 'url(#arrow)'"
       class="pointer-events-none"
     />

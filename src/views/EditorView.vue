@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useDiagramStore } from '@/stores/diagram'
+import { wouldOverlap } from '@/lib/layout'
 import { parseFile, parseDiagram, diagramToJson, downloadSvg, downloadPng } from '@/lib/importExport'
 import exampleDiagram from '../../examples/nettdetektivene.susad.json'
 import { useT } from '@/lib/i18n'
@@ -130,7 +131,7 @@ function onKeydown(e: KeyboardEvent): void {
     return
   }
 
-  if (e.key === 'Delete' && !inInput) {
+  if ((e.key === 'Delete' || e.key === 'Backspace') && !inInput) {
     if (store.selectedItem) store.deleteItem(store.selectedItem.id)
     else if (store.selectedEdge) store.deleteEdge(store.selectedEdge.id)
     return
@@ -139,11 +140,18 @@ function onKeydown(e: KeyboardEvent): void {
   if ((e.ctrlKey || e.metaKey) && !inInput) {
     if (e.key === 'x') {
       e.preventDefault()
-      if (store.selectedItem) store.deleteItem(store.selectedItem.id)
-      else if (store.selectedEdge) store.deleteEdge(store.selectedEdge.id)
+      if (store.selectedItem) {
+        clipboard.value = { ...store.selectedItem }
+        store.deleteItem(store.selectedItem.id)
+      }
       return
     }
-    if (e.key === 'z') { e.preventDefault(); store.undo(); return }
+    if (e.key === 'z') {
+      e.preventDefault()
+      if (e.shiftKey) { store.redo(); return }
+      store.undo()
+      return
+    }
     if (e.key === 'y') { e.preventDefault(); store.redo(); return }
     if (e.key === 's') { e.preventDefault(); saveFile(); return }
     if (e.key === 'c') {
@@ -162,13 +170,13 @@ function onKeydown(e: KeyboardEvent): void {
   }
 
   if (store.selectedItem && !inInput) {
-    const step = e.shiftKey ? 10 : 1
+    const step = e.shiftKey ? 10 : 2
     const item = store.selectedItem
     switch (e.key) {
-      case 'ArrowLeft': e.preventDefault(); store.moveItem(item.id, item.dx - step, item.dy); store.recordMove(); break
-      case 'ArrowRight': e.preventDefault(); store.moveItem(item.id, item.dx + step, item.dy); store.recordMove(); break
-      case 'ArrowUp': e.preventDefault(); store.moveItem(item.id, item.dx, item.dy - step); store.recordMove(); break
-      case 'ArrowDown': e.preventDefault(); store.moveItem(item.id, item.dx, item.dy + step); store.recordMove(); break
+      case 'ArrowLeft': e.preventDefault(); if (!wouldOverlap(item.id, item.dx - step, item.dy, store.diagram.items, store.layout)) store.moveItem(item.id, item.dx - step, item.dy); store.recordMove(); break
+      case 'ArrowRight': e.preventDefault(); if (!wouldOverlap(item.id, item.dx + step, item.dy, store.diagram.items, store.layout)) store.moveItem(item.id, item.dx + step, item.dy); store.recordMove(); break
+      case 'ArrowUp': e.preventDefault(); if (!wouldOverlap(item.id, item.dx, item.dy - step, store.diagram.items, store.layout)) store.moveItem(item.id, item.dx, item.dy - step); store.recordMove(); break
+      case 'ArrowDown': e.preventDefault(); if (!wouldOverlap(item.id, item.dx, item.dy + step, store.diagram.items, store.layout)) store.moveItem(item.id, item.dx, item.dy + step); store.recordMove(); break
     }
   }
 }
@@ -279,8 +287,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         @select-edge="store.select($event)"
         @select-system="store.select('system')"
         @deselect-all="store.select(null)"
-        @item-drag="(id, dx, dy) => store.moveItem(id, dx, dy)"
-        @item-drag-end="(id, dx, dy) => { store.moveItem(id, dx, dy); store.recordAndDetectSector(id) }"
+        @item-drag="(id, dx, dy) => { if (!wouldOverlap(id, dx, dy, store.diagram.items, store.layout)) store.moveItem(id, dx, dy) }"
+        @item-drag-end="(id, dx, dy) => { store.recordAndDetectSector(id) }"
         @item-resize="(id, w, h, dx, dy) => store.patchItemLive(id, { width: w, height: h, dx, dy })"
         @item-resize-end="(id, w, h, dx, dy) => store.updateItem(id, { width: w, height: h, dx, dy })"
         @connect-target="store.finishConnect($event)"

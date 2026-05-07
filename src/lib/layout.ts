@@ -6,17 +6,99 @@ export interface LayoutPosition {
   y: number
 }
 
-const DEFAULT_W = 90
-const DEFAULT_H = 60
-const MARGIN = 12
+const DEFAULT_W = 110
+const DEFAULT_H = 64
+const MARGIN = 14
 
-// Estimate rendered card height from text content (12px font, leading-snug ~17px/line, p-1.5 padding)
+// Estimate rendered card height: header(22) + body(lines*15 + 8px padding) + footer(18)
 function estimateH(item: Item): number {
   if (item.height !== undefined) return item.height
   const w = item.width ?? DEFAULT_W
-  const charsPerLine = Math.max(5, Math.floor(w / 7))
+  const charsPerLine = Math.max(5, Math.floor(w / 6.5))
   const lines = Math.ceil(item.label.length / charsPerLine)
-  return Math.max(DEFAULT_H, 6 + 15 + Math.max(1, lines) * 17 + 6)
+  return Math.max(DEFAULT_H, 22 + Math.max(1, lines) * 15 + 8 + 18)
+}
+
+// Find a non-overlapping starting offset for a newly added item.
+// Operates on actual rendered positions so it respects where users moved existing cards.
+// The new item must already be in allItems with dx=0, dy=0 so computeLayout places it
+// at its ideal slot center - that becomes the reference point for the returned dx/dy.
+export function findNewItemOffset(
+  newItem: Item,
+  allItems: Item[],
+  scale: number,
+): { dx: number; dy: number } {
+  const layout = computeLayout(allItems, scale)
+  const slot = layout.get(newItem.id) ?? { x: 0, y: 0 }
+  let x = slot.x
+  let y = slot.y
+  const hw = (newItem.width ?? DEFAULT_W) / 2
+  const hh = estimateH(newItem) / 2
+
+  for (let iter = 0; iter < 40; iter++) {
+    let pushX = 0
+    let pushY = 0
+
+    for (const other of allItems) {
+      if (other.id === newItem.id) continue
+      const op = layout.get(other.id)
+      if (!op) continue
+      const ohw = (other.width ?? DEFAULT_W) / 2 + MARGIN
+      const ohh = estimateH(other) / 2 + MARGIN
+      const dx = x - op.x
+      const dy = y - op.y
+      const overlapX = hw + ohw - Math.abs(dx)
+      const overlapY = hh + ohh - Math.abs(dy)
+
+      if (overlapX > 0 && overlapY > 0) {
+        if (overlapX <= overlapY) {
+          pushX += dx >= 0 ? overlapX + 1 : -(overlapX + 1)
+        } else {
+          pushY += dy >= 0 ? overlapY + 1 : -(overlapY + 1)
+        }
+      }
+    }
+
+    if (pushX === 0 && pushY === 0) break
+    x += pushX
+    y += pushY
+  }
+
+  return { dx: x - slot.x, dy: y - slot.y }
+}
+
+// Returns true if placing `id` at (proposedDx, proposedDy) would overlap any other item.
+export function wouldOverlap(
+  id: string,
+  proposedDx: number,
+  proposedDy: number,
+  items: Item[],
+  layout: Map<string, LayoutPosition>,
+): boolean {
+  const moving = items.find((it) => it.id === id)
+  if (!moving) return false
+  const slot = layout.get(id)
+  if (!slot) return false
+  // Ideal slot for moving item is slot.x - moving.dx (base position without offset)
+  const baseX = slot.x - moving.dx
+  const baseY = slot.y - moving.dy
+  const px = baseX + proposedDx
+  const py = baseY + proposedDy
+  const hw = (moving.width ?? DEFAULT_W) / 2
+  const hh = estimateH(moving) / 2
+
+  for (const other of items) {
+    if (other.id === id) continue
+    const op = layout.get(other.id)
+    if (!op) continue
+    const ohw = (other.width ?? DEFAULT_W) / 2 + MARGIN / 2
+    const ohh = estimateH(other) / 2 + MARGIN / 2
+    if (
+      Math.abs(px - op.x) < hw + ohw &&
+      Math.abs(py - op.y) < hh + ohh
+    ) return true
+  }
+  return false
 }
 
 // Fast layout for reactive use - just slot geometry + user offsets, no collision pass.

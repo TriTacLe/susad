@@ -2,7 +2,7 @@
   "version": 1,
   "system": "Nettdetektivene",
   "locale": "no",
-  "diagramScale": 1,
+  "diagramScale": 1.3,
   "items": [
     {
       "id": "II1",
@@ -47,7 +47,7 @@
     {
       "id": "II5",
       "code": "II5",
-      "label": "Medaljer, XP og konfetti etter fullfort stopp gir elever mestringsfølelse og motiverer videre læring",
+      "label": "Medaljer, XP og konfetti etter fullført steg gir elever mestringsfølelse og motiverer videre læring",
       "sector": "individual",
       "ring": "immediate",
       "polarity": "positive",
@@ -265,6 +265,16 @@
       "dy": 0
     },
     {
+      "id": "EcI3",
+      "code": "EcI3",
+      "label": "Åpen kildekode-stack (Spring Boot, Vue, PostgreSQL) eliminerer lisenskostnader",
+      "sector": "economic",
+      "ring": "immediate",
+      "polarity": "positive",
+      "dx": 0,
+      "dy": 0
+    },
+    {
       "id": "EcE1",
       "code": "EcE1",
       "label": "Gratis plattform senker terskelen for skoler med begrenset EdTech-budsjett",
@@ -356,6 +366,7 @@
 
     { "id": "edge-EcI1-system", "from": "EcI1", "to": "system" },
     { "id": "edge-EcI2-system", "from": "EcI2", "to": "system" },
+    { "id": "edge-EcI3-system", "from": "EcI3", "to": "system" },
     { "id": "edge-EcE1-EcI1", "from": "EcE1", "to": "EcI1" },
     { "id": "edge-EcS1-EcE1", "from": "EcS1", "to": "EcE1" },
 
@@ -367,6 +378,10 @@
     { "id": "edge-IE1-SE1", "from": "IE1", "to": "SE1" },
     { "id": "edge-IS1-SS1", "from": "IS1", "to": "SS1" },
     { "id": "edge-EcS1-EnE1", "from": "EcS1", "to": "EnE1" },
-    { "id": "edge-II5-SI1", "from": "II5", "to": "SI1" }
+    { "id": "edge-II5-SI1", "from": "II5", "to": "SI1" },
+    { "id": "edge-TI1-II4", "from": "TI1", "to": "II4" },
+    { "id": "edge-TI4-IE2", "from": "TI4", "to": "IE2" },
+    { "id": "edge-TI5-SI3", "from": "TI5", "to": "SI3" },
+    { "id": "edge-TE1-EcI3", "from": "TE1", "to": "EcI3" }
   ]
 }

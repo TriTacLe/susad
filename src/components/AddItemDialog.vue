@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, nextTick } from 'vue'
 import type { Sector, Ring, Polarity, Locale } from '@/types'
 import { SECTORS, RINGS, SECTOR_LABELS, RING_LABELS } from '@/types'
 import { useT } from '@/lib/i18n'
@@ -18,6 +18,8 @@ const emit = defineEmits<{
 }>()
 
 const t = computed(() => useT(props.locale))
+
+const dialogRef = ref<HTMLElement | null>(null)
 
 const code = ref('')
 const label = ref('')
@@ -51,6 +53,9 @@ watch(
       lastSuggestion = ''
       code.value = ''
       applySuggestion()
+      nextTick(() => {
+        dialogRef.value?.querySelector<HTMLElement>('input')?.focus()
+      })
     }
   },
 )
@@ -72,8 +77,26 @@ function submit(): void {
   })
 }
 
+function trapTab(e: KeyboardEvent): void {
+  if (e.key !== 'Tab' || !dialogRef.value) return
+  const els = Array.from(
+    dialogRef.value.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])',
+    ),
+  )
+  if (els.length === 0) return
+  const first = els[0]
+  const last = els[els.length - 1]
+  if (e.shiftKey) {
+    if (document.activeElement === first) { e.preventDefault(); last.focus() }
+  } else {
+    if (document.activeElement === last) { e.preventDefault(); first.focus() }
+  }
+}
+
 function onKeydown(e: KeyboardEvent): void {
   if (e.key === 'Escape') emit('close')
+  trapTab(e)
 }
 </script>
 
@@ -87,7 +110,7 @@ function onKeydown(e: KeyboardEvent): void {
     @keydown="onKeydown"
     @click.self="emit('close')"
   >
-    <div class="bg-white border border-[#d4d4d4] rounded p-6 w-[360px] shadow-sm">
+    <div ref="dialogRef" class="bg-white border border-[#d4d4d4] rounded p-6 w-[360px] shadow-sm">
       <h2 id="dialog-title" class="text-base font-semibold mb-4">{{ t.addItemTitle }}</h2>
 
       <div v-if="error" class="mb-3 text-sm text-red-700 border border-red-300 bg-red-50 rounded px-3 py-2" role="alert">
@@ -102,7 +125,6 @@ function onKeydown(e: KeyboardEvent): void {
             v-model="code"
             type="text"
             class="w-full border border-[#d4d4d4] rounded px-2 py-1.5 text-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
-            autofocus
           />
         </div>
 

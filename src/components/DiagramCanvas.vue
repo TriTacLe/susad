@@ -5,6 +5,7 @@ import type { LayoutPosition } from '@/lib/layout'
 import { CANVAS_SIZE } from '@/lib/geometry'
 import { useT } from '@/lib/i18n'
 import PentagonBackdrop from './PentagonBackdrop.vue'
+import SectorLabels from './SectorLabels.vue'
 import SystemNode from './SystemNode.vue'
 import EdgeArrow from './EdgeArrow.vue'
 import ItemNode from './ItemNode.vue'
@@ -209,6 +210,7 @@ const edgesWithCoords = computed(() =>
           :x2="edge.x2"
           :y2="edge.y2"
           :selected="selectedId === edge.id"
+          :scale="diagram.diagramScale ?? 1"
           @click="emit('selectEdge', $event)"
         />
 
@@ -233,6 +235,7 @@ const edgesWithCoords = computed(() =>
         :connect-mode="connectMode"
         :is-connect-source="connectSourceId === item.id"
         :zoom="zoom"
+        :locale="diagram.locale"
         @select="emit('selectItem', $event)"
         @drag="(id, dx, dy) => emit('itemDrag', id, dx, dy)"
         @dragend="(id, dx, dy) => emit('itemDragEnd', id, dx, dy)"
@@ -240,6 +243,17 @@ const edgesWithCoords = computed(() =>
         @resizeend="(id, w, h, dx, dy) => emit('itemResizeEnd', id, w, h, dx, dy)"
         @connect-target="emit('connectTarget', $event)"
       />
+
+      <!-- Sector label overlay: rendered after HTML item cards so labels always appear on top -->
+      <svg
+        :width="CANVAS_SIZE"
+        :height="CANVAS_SIZE"
+        :viewBox="`${-half} ${-half} ${CANVAS_SIZE} ${CANVAS_SIZE}`"
+        class="absolute inset-0"
+        style="overflow: visible; pointer-events: none"
+      >
+        <SectorLabels :locale="diagram.locale" :scale="diagram.diagramScale ?? 1" />
+      </svg>
 
       <!-- Screen reader mirror -->
       <ul class="sr-only" aria-label="Diagram items">
@@ -283,8 +297,8 @@ const edgesWithCoords = computed(() =>
       class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
       aria-hidden="true"
     >
-      <p class="text-sm font-medium text-[#a3a3a3]">{{ t.emptyStateTitle }}</p>
-      <p class="text-xs text-[#a3a3a3] mt-1 max-w-[220px] text-center">{{ t.emptyState }}</p>
+      <p class="text-sm font-medium text-[#404040]">{{ t.emptyStateTitle }}</p>
+      <p class="text-xs text-[#595959] mt-1 max-w-[220px] text-center">{{ t.emptyState }}</p>
     </div>
 
     <!-- Add item: bottom center, always accessible -->

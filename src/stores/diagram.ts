@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Diagram, Item, Edge, Locale, Sector, Ring } from '@/types'
-import { computeLayout, computeForceLayout } from '@/lib/layout'
+import { computeLayout, computeForceLayout, findNewItemOffset } from '@/lib/layout'
 import { detectSectorRing, slotCenter } from '@/lib/geometry'
 
 const SECTOR_PREFIX: Record<Sector, string> = {
@@ -21,7 +21,7 @@ function generateItemId(sector: Sector, ring: Ring, items: Item[]): string {
 const MAX_HISTORY = 50
 
 function emptyDiagram(): Diagram {
-  return { version: 1, system: 'My System', locale: 'no', diagramScale: 1, items: [], edges: [] }
+  return { version: 1, system: 'My System', locale: 'no', diagramScale: 1.3, items: [], edges: [] }
 }
 
 function snapshot(d: Diagram): Diagram {
@@ -115,12 +115,17 @@ export const useDiagramStore = defineStore(
       const id = generateItemId(item.sector, item.ring, diagram.value.items)
       record()
       diagram.value.items.push({ ...item, id, dx: 0, dy: 0 })
+      const scale = diagram.value.diagramScale ?? 1
+      const newItem = diagram.value.items.at(-1)!
+      const off = findNewItemOffset(newItem, diagram.value.items, scale)
+      newItem.dx = off.dx
+      newItem.dy = off.dy
       selectedId.value = id
     }
 
     function setDiagramScale(scale: number): void {
       record()
-      diagram.value.diagramScale = Math.max(0.3, Math.min(2, scale))
+      diagram.value.diagramScale = Math.max(0.3, Math.min(2.5, scale))
       const newScale = diagram.value.diagramScale
       const offsets = computeForceLayout(diagram.value.items, newScale)
       for (const item of diagram.value.items) {
@@ -242,7 +247,12 @@ export const useDiagramStore = defineStore(
         newId = `${data.id}-copy${n++}`
       }
       record()
-      diagram.value.items.push({ ...data, id: newId, dx: data.dx + 20, dy: data.dy + 20 })
+      diagram.value.items.push({ ...data, id: newId, dx: 0, dy: 0 })
+      const scale = diagram.value.diagramScale ?? 1
+      const newItem = diagram.value.items.at(-1)!
+      const off = findNewItemOffset(newItem, diagram.value.items, scale)
+      newItem.dx = off.dx
+      newItem.dy = off.dy
       selectedId.value = newId
     }
 

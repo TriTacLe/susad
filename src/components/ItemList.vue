@@ -61,7 +61,7 @@ function polarityClass(polarity: Item['polarity']): string {
         <div class="min-w-0">
           <p class="text-xs font-semibold truncate">{{ item.code }}</p>
           <p class="text-xs text-[#525252] leading-tight">{{ item.label }}</p>
-          <p class="text-[10px] text-[#737373] capitalize">{{ item.sector }} / {{ item.ring }}</p>
+          <p class="text-[11px] text-[#595959] capitalize">{{ item.sector }} / {{ item.ring }}</p>
         </div>
       </li>
       <li v-if="items.length === 0" class="px-3 py-4 text-xs text-[#737373] text-center">

@@ -43,7 +43,7 @@ function onScaleInput(e: Event): void {
     <button class="btn" :title="t.new" @click="emit('new')">{{ t.new }}</button>
     <button class="btn" :title="t.clearDiagram" @click="emit('clearDiagram')">{{ t.clearDiagram }}</button>
     <button class="btn" :title="t.open" @click="emit('open')">{{ t.open }}</button>
-    <button class="btn relative" :title="t.save" @click="emit('save')">
+    <button class="btn relative" :title="`${t.save} (Ctrl+S)`" @click="emit('save')">
       {{ t.save }}
       <span
         v-if="hasPendingChanges"
@@ -72,7 +72,7 @@ function onScaleInput(e: Event): void {
     <button
       class="btn gap-1"
       :disabled="!canRedo"
-      :title="`${t.redo} (Ctrl+Y)`"
+      :title="`${t.redo} (Ctrl+Y / Ctrl+Shift+Z)`"
       @click="emit('redo')"
     >
       <Redo2 :size="14" aria-hidden="true" />
@@ -101,25 +101,25 @@ function onScaleInput(e: Event): void {
     <span class="w-px h-5 bg-[#d4d4d4] mx-1" aria-hidden="true" />
 
     <div class="flex items-center gap-2 text-sm">
-      <label for="diagram-scale" class="text-xs text-[#525252] whitespace-nowrap">Scale</label>
+      <label for="diagram-scale" class="text-xs text-[#525252] whitespace-nowrap">{{ t.scale }}</label>
       <input
         id="diagram-scale"
         type="range"
         min="0.3"
-        max="1.8"
+        max="2.5"
         step="0.05"
         :value="diagramScale"
         class="w-20 h-1 accent-[#1d4ed8]"
-        :title="`Diagram scale: ${Math.round(diagramScale * 100)}%`"
+        :title="`${t.scale}: ${Math.round(diagramScale * 100)}%`"
         @input="onScaleInput"
       />
       <span class="text-xs text-[#525252] w-8 tabular-nums" aria-live="polite">{{ Math.round(diagramScale * 100) }}%</span>
       <button
         class="btn"
-        title="Reset diagram scale to 100%"
+        :title="t.resetScale"
         @click="emit('diagramScale', 1)"
       >
-        Reset
+        {{ t.resetScale }}
       </button>
     </div>
 
@@ -136,6 +136,13 @@ function onScaleInput(e: Event): void {
     <button class="btn" :title="t.localeSwitchTitle" @click="emit('toggleLocale')">
       {{ t.locale }}
     </button>
+
+    <a
+      href="https://github.com/tritacle"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-xs text-[#737373] hover:text-[#404040] whitespace-nowrap"
+    >github.com/tritacle</a>
   </header>
 </template>
 

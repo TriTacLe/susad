@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { Item } from '@/types'
+import type { Item, Locale } from '@/types'
+import { RING_LABELS } from '@/types'
 import { CANVAS_SIZE } from '@/lib/geometry'
 
-const DEFAULT_W = 90
-const DEFAULT_H = 50
+const DEFAULT_W = 110
+const DEFAULT_H = 64
 
 const props = defineProps<{
   item: Item
@@ -14,6 +15,7 @@ const props = defineProps<{
   connectMode: boolean
   isConnectSource: boolean
   zoom: number
+  locale?: Locale
 }>()
 
 const emit = defineEmits<{
@@ -33,16 +35,24 @@ const style = computed(() => {
     left: `${props.x + CANVAS_SIZE / 2}px`,
     top: `${props.y + CANVAS_SIZE / 2}px`,
     width: `${cardW.value}px`,
+    minHeight: `${DEFAULT_H}px`,
     transform: 'translate(-50%, -50%)',
   }
   // Only fix height if user has manually resized; otherwise auto-size to content
-  if (props.item.height !== undefined) return { ...base, height: `${cardH.value}px` }
+  if (props.item.height !== undefined) return { ...base, height: `${cardH.value}px`, minHeight: undefined }
   return base
 })
 
 const bgColor = computed(() =>
   props.item.color || (props.item.polarity === 'positive' ? '#15803d' : '#b45309'),
 )
+
+const ringLabel = computed(() =>
+  RING_LABELS[props.locale ?? 'en'][props.item.ring],
+)
+
+const polarityLabel = computed(() => props.item.polarity === 'positive' ? '+' : '-')
+const polarityBg = computed(() => props.item.polarity === 'positive' ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)')
 
 // --- Drag ---
 const dragging = ref(false)
@@ -139,8 +149,9 @@ function onResizeUp(e: PointerEvent): void {
   <div
     data-item="true"
     :style="{ ...style, backgroundColor: bgColor }"
-    class="absolute rounded border border-white/20 text-white select-none touch-none overflow-hidden"
+    class="absolute rounded shadow-sm border border-white/20 text-white select-none touch-none flex flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d4ed8]"
     :class="{
+      'overflow-hidden': item.height !== undefined,
       'outline outline-2 outline-offset-2 outline-[#1d4ed8]': selected && !connectMode,
       'outline outline-2 outline-offset-2 outline-dashed outline-[#1d4ed8]': connectMode && !isConnectSource,
       'cursor-grab': !connectMode && !dragging,
@@ -157,10 +168,35 @@ function onResizeUp(e: PointerEvent): void {
     @keydown.enter="emit('select', item.id)"
     @keydown.space.prevent="emit('select', item.id)"
   >
-    <!-- Text content; overflow-hidden only when height is manually fixed -->
-    <div class="p-1.5 pointer-events-none w-full antialiased" :class="item.height !== undefined ? 'overflow-hidden h-full' : ''">
-      <p class="text-[12px] leading-tight font-bold tracking-wide" :class="item.height !== undefined ? 'truncate' : ''">{{ item.code }}</p>
-      <p class="text-[12px] leading-snug font-semibold" :class="item.height !== undefined ? 'line-clamp-3' : ''">{{ item.label }} ({{ item.polarity === 'positive' ? '+' : '-' }})</p>
+    <!-- Header: code badge + polarity pill -->
+    <div
+      class="pointer-events-none flex items-center justify-between gap-1 px-1.5 pt-1.5 pb-1"
+      style="background: rgba(0,0,0,0.2)"
+    >
+      <span class="text-[12px] font-bold tracking-wider leading-none truncate">{{ item.code }}</span>
+      <span
+        class="text-[11px] font-bold leading-none px-1 py-0.5 rounded flex-shrink-0"
+        :style="{ background: polarityBg }"
+      >{{ polarityLabel }}</span>
+    </div>
+
+    <!-- Body: label -->
+    <div
+      class="pointer-events-none flex-1 px-1.5 py-1"
+      :class="item.height !== undefined ? 'overflow-hidden' : ''"
+    >
+      <p
+        class="text-[12px] leading-snug font-medium"
+        :class="item.height !== undefined ? 'line-clamp-3' : ''"
+      >{{ item.label }}</p>
+    </div>
+
+    <!-- Footer: ring name -->
+    <div
+      class="pointer-events-none px-1.5 pb-1 pt-0.5"
+      style="background: rgba(0,0,0,0.15)"
+    >
+      <span class="text-[11px] uppercase tracking-widest font-semibold leading-none">{{ ringLabel }}</span>
     </div>
 
     <!-- Resize handles: 4 corners, outside overflow-hidden wrapper so always hittable -->

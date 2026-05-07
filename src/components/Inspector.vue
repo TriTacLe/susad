@@ -5,8 +5,8 @@ import type { Item, Edge, Sector, Ring, Polarity, Locale } from '@/types'
 import { SECTORS, RINGS, SECTOR_LABELS, RING_LABELS } from '@/types'
 import { useT } from '@/lib/i18n'
 
-const DEFAULT_W = 90
-const DEFAULT_H = 50
+const DEFAULT_W = 110
+const DEFAULT_H = 64
 
 const props = defineProps<{
   selectedItem: Item | null
@@ -216,7 +216,7 @@ function ringLabel(r: Ring): string {
           >
             Reset
           </button>
-          <span v-else class="text-xs text-[#a3a3a3]">{{ t.colorHint }}</span>
+          <span v-else class="text-xs text-[#737373]">{{ t.colorHint }}</span>
         </div>
       </div>
 

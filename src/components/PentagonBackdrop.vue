@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Locale } from '@/types'
-import { SECTORS } from '@/types'
-import { SECTOR_LABELS, RING_LABELS } from '@/types'
+import { RING_LABELS } from '@/types'
 import {
   CIRCUMRADIUS,
   VERTEX_ANGLES_DEG,
   SECTOR_ANGLE_DEG,
-  edgeMidpoint,
-  labelRotation,
   INRADIUS,
 } from '@/lib/geometry'
 
@@ -63,20 +60,6 @@ const ringLabels = computed(() =>
   }),
 )
 
-// Sector axis labels
-const sectorLabels = computed(() =>
-  SECTORS.map((sector) => {
-    const angle = SECTOR_ANGLE_DEG[sector]
-    const pt = edgeMidpoint(angle, sc.value)
-    const rot = labelRotation(angle)
-    return {
-      x: pt.x,
-      y: pt.y,
-      label: SECTOR_LABELS[props.locale][sector],
-      rot,
-    }
-  }),
-)
 </script>
 
 <template>
@@ -111,23 +94,6 @@ const sectorLabels = computed(() =>
     stroke-width="1.5"
   />
 
-  <!-- Sector axis labels -->
-  <text
-    v-for="sl in sectorLabels"
-    :key="sl.label"
-    :x="sl.x"
-    :y="sl.y"
-    text-anchor="middle"
-    dominant-baseline="middle"
-    font-size="15"
-    font-weight="bold"
-    font-family="sans-serif"
-    fill="#111827"
-    :transform="`rotate(${sl.rot}, ${sl.x}, ${sl.y})`"
-  >
-    {{ sl.label }}
-  </text>
-
   <!-- Ring labels in Economic sector -->
   <text
     v-for="rl in ringLabels"
@@ -135,9 +101,14 @@ const sectorLabels = computed(() =>
     :x="rl.x"
     :y="rl.y"
     text-anchor="middle"
-    font-size="11"
+    dominant-baseline="middle"
+    :font-size="12 * sc"
+    font-weight="600"
     font-family="sans-serif"
-    fill="#374151"
+    fill="#1f2937"
+    stroke="white"
+    :stroke-width="3 * sc"
+    paint-order="stroke"
   >
     {{ rl.label }}
   </text>
