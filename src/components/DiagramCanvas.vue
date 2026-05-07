@@ -149,7 +149,14 @@ const edgesWithCoords = computed(() =>
   props.diagram.edges.map((edge) => {
     const from = edge.from === 'system' ? { x: 0, y: 0 } : nodePos(edge.from)
     const to = edge.to === 'system' ? { x: 0, y: 0 } : nodePos(edge.to)
-    return { ...edge, x1: from.x, y1: from.y, x2: to.x, y2: to.y }
+    const fromItem = props.diagram.items.find(i => i.id === edge.from)
+    const toItem = props.diagram.items.find(i => i.id === edge.to)
+    return {
+      ...edge,
+      x1: from.x, y1: from.y, x2: to.x, y2: to.y,
+      fromLabel: fromItem?.code ?? edge.from,
+      toLabel: toItem?.code ?? edge.to,
+    }
   }),
 )
 </script>
@@ -160,7 +167,7 @@ const edgesWithCoords = computed(() =>
     class="relative overflow-hidden bg-[#f5f5f5]"
     role="img"
     :aria-label="`SusAD diagram for ${diagram.system}`"
-    :style="{ cursor: panning ? 'grabbing' : 'grab' }"
+    :style="{ cursor: panning ? 'grabbing' : 'grab', touchAction: 'none' }"
     @pointerdown="onViewportPointerDown"
     @pointermove="onViewportPointerMove"
     @pointerup="onViewportPointerUp"
@@ -211,6 +218,8 @@ const edgesWithCoords = computed(() =>
           :y2="edge.y2"
           :selected="selectedId === edge.id"
           :scale="diagram.diagramScale ?? 1"
+          :from-label="edge.fromLabel"
+          :to-label="edge.toLabel"
           @click="emit('selectEdge', $event)"
         />
 
@@ -266,24 +275,24 @@ const edgesWithCoords = computed(() =>
     <!-- Zoom controls (viewport-fixed, bottom-right) -->
     <div class="absolute bottom-4 right-4 flex flex-col gap-1 z-10">
       <button
-        class="w-9 h-9 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-sm font-bold focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
-        title="Zoom in"
+        class="w-11 h-11 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-sm font-bold focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+        :title="t.zoomIn"
         @pointerdown.stop
         @click="zoomBy(1.2)"
       >
         +
       </button>
       <button
-        class="w-9 h-9 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-sm font-bold focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
-        title="Zoom out"
+        class="w-11 h-11 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-sm font-bold focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+        :title="t.zoomOut"
         @pointerdown.stop
         @click="zoomBy(1 / 1.2)"
       >
         -
       </button>
       <button
-        class="w-9 h-9 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-[10px] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
-        title="Reset zoom to 1:1"
+        class="w-11 h-11 flex items-center justify-center border border-[#d4d4d4] rounded bg-white hover:bg-[#f5f5f5] text-[10px] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+        :title="t.resetZoom"
         @pointerdown.stop
         @click="resetZoom"
       >
@@ -295,7 +304,7 @@ const edgesWithCoords = computed(() =>
     <div
       v-if="diagram.items.length === 0"
       class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-      aria-hidden="true"
+      aria-live="polite"
     >
       <p class="text-sm font-medium text-[#404040]">{{ t.emptyStateTitle }}</p>
       <p class="text-xs text-[#595959] mt-1 max-w-[220px] text-center">{{ t.emptyState }}</p>

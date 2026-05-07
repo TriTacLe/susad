@@ -67,3 +67,10 @@ const fontSize = computed(() => 13 * sc.value)
     />
   </g>
 </template>
+
+<style scoped>
+g:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+</style>

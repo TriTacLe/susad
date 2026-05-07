@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useDiagramStore } from '@/stores/diagram'
 import { wouldOverlap } from '@/lib/layout'
 import { parseFile, parseDiagram, diagramToJson, downloadSvg, downloadPng } from '@/lib/importExport'
@@ -11,6 +11,7 @@ import Inspector from '@/components/Inspector.vue'
 import Toolbar from '@/components/Toolbar.vue'
 import AddItemDialog from '@/components/AddItemDialog.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import ShortcutsHelp from '@/components/ShortcutsHelp.vue'
 import type { Item } from '@/types'
 
 const store = useDiagramStore()
@@ -23,11 +24,21 @@ const importError = ref('')
 const showList = ref(true)
 const showInspector = ref(true)
 const clipboard = ref<Item | null>(null)
+const showShortcuts = ref(false)
+const showOnboarding = ref(false)
+const deletionToast = ref('')
+let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 // Confirm dialogs
 const confirmNewOpen = ref(false)
 const confirmOpenOpen = ref(false)
 const confirmClearOpen = ref(false)
+
+function showDeletionToast(msg: string): void {
+  deletionToast.value = msg
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { deletionToast.value = '' }, 4000)
+}
 
 function saveFile(): void {
   const json = diagramToJson(store.getDiagramSnapshot())
@@ -132,8 +143,18 @@ function onKeydown(e: KeyboardEvent): void {
   }
 
   if ((e.key === 'Delete' || e.key === 'Backspace') && !inInput) {
-    if (store.selectedItem) store.deleteItem(store.selectedItem.id)
-    else if (store.selectedEdge) store.deleteEdge(store.selectedEdge.id)
+    if (store.selectedItem) {
+      store.deleteItem(store.selectedItem.id)
+      showDeletionToast(t.value.itemDeletedUndo)
+    } else if (store.selectedEdge) {
+      store.deleteEdge(store.selectedEdge.id)
+      showDeletionToast(t.value.edgeDeletedUndo)
+    }
+    return
+  }
+
+  if (e.key === '?' && !inInput) {
+    showShortcuts.value = true
     return
   }
 
@@ -181,14 +202,35 @@ function onKeydown(e: KeyboardEvent): void {
   }
 }
 
+function onBeforeUnload(e: BeforeUnloadEvent): void {
+  if (store.hasPendingChanges) {
+    e.preventDefault()
+    e.returnValue = ''
+  }
+}
+
+watch(
+  () => store.diagram.locale,
+  (locale) => { document.documentElement.lang = locale },
+  { immediate: true },
+)
+
 onMounted(() => {
   window.addEventListener('keydown', onKeydown)
+  window.addEventListener('beforeunload', onBeforeUnload)
   if (!store.isDirty) {
     store.load(parseDiagram(exampleDiagram))
     store.markSaved()
+    if (!localStorage.getItem('susad-onboarded')) {
+      showOnboarding.value = true
+    }
   }
 })
-onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('beforeunload', onBeforeUnload)
+  if (toastTimer) clearTimeout(toastTimer)
+})
 </script>
 
 <template>
@@ -198,7 +240,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       href="#main-canvas"
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:border focus:border-[#1d4ed8] focus:rounded text-sm"
     >
-      Skip to diagram
+      {{ t.skipToDiagram }}
     </a>
 
     <Toolbar
@@ -221,6 +263,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       @cleanup-layout="store.resetLayout()"
       @fit-view="canvasRef?.fitToScreen()"
       @diagram-scale="store.setDiagramScale($event)"
+      @show-shortcuts="showShortcuts = true"
     />
 
     <!-- Import error banner -->
@@ -233,7 +276,30 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       <button class="ml-3 underline text-xs" @click="importError = ''">Dismiss</button>
     </div>
 
-    <main id="main-canvas" class="relative flex flex-1 overflow-hidden">
+    <!-- Onboarding banner -->
+    <div
+      v-if="showOnboarding"
+      class="px-4 py-2 text-sm bg-blue-50 border-b border-blue-200 text-blue-800 flex items-center justify-between"
+      role="status"
+    >
+      <span>{{ t.onboardingBanner }}</span>
+      <button
+        class="ml-3 text-xs underline focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+        @click="showOnboarding = false; localStorage.setItem('susad-onboarded', '1')"
+      >{{ t.onboardingDismiss }}</button>
+    </div>
+
+    <main id="main-canvas" tabindex="-1" class="relative flex flex-1 overflow-hidden">
+      <!-- Deletion toast -->
+      <div
+        class="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 px-4 py-2 text-sm bg-[#171717] text-white rounded shadow-md transition-opacity"
+        :class="deletionToast ? 'opacity-100' : 'opacity-0 pointer-events-none'"
+        role="status"
+        aria-live="polite"
+      >
+        {{ deletionToast }}
+      </div>
+
       <!-- Connect mode banner -->
       <div
         v-if="store.connectState.mode === 'connecting'"
@@ -322,7 +388,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       type="file"
       accept=".json,.susad.json"
       class="sr-only"
-      aria-hidden="true"
+      tabindex="-1"
       @change="onFileChange"
     />
 
@@ -367,6 +433,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       :cancel-label="t.cancel"
       @primary="onOpenReplace"
       @cancel="confirmOpenOpen = false"
+    />
+
+    <ShortcutsHelp
+      :open="showShortcuts"
+      :locale="store.diagram.locale"
+      @close="showShortcuts = false"
     />
   </div>
 </template>

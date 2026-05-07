@@ -20,6 +20,7 @@ const emit = defineEmits<{
 const t = computed(() => useT(props.locale))
 
 const dialogRef = ref<HTMLElement | null>(null)
+let triggerEl: HTMLElement | null = null
 
 const code = ref('')
 const label = ref('')
@@ -45,6 +46,7 @@ watch(
   () => props.open,
   (v) => {
     if (v) {
+      triggerEl = document.activeElement as HTMLElement | null
       label.value = ''
       sector.value = props.prefillSector ?? 'social'
       ring.value = props.prefillRing ?? 'immediate'
@@ -56,6 +58,9 @@ watch(
       nextTick(() => {
         dialogRef.value?.querySelector<HTMLElement>('input')?.focus()
       })
+    } else {
+      triggerEl?.focus()
+      triggerEl = null
     }
   },
 )
@@ -113,7 +118,7 @@ function onKeydown(e: KeyboardEvent): void {
     <div ref="dialogRef" class="bg-white border border-[#d4d4d4] rounded p-6 w-[360px] shadow-sm">
       <h2 id="dialog-title" class="text-base font-semibold mb-4">{{ t.addItemTitle }}</h2>
 
-      <div v-if="error" class="mb-3 text-sm text-red-700 border border-red-300 bg-red-50 rounded px-3 py-2" role="alert">
+      <div v-if="error" id="add-error-msg" class="mb-3 text-sm text-red-700 border border-red-300 bg-red-50 rounded px-3 py-2" role="alert">
         {{ error }}
       </div>
 
@@ -124,6 +129,8 @@ function onKeydown(e: KeyboardEvent): void {
             id="item-code"
             v-model="code"
             type="text"
+            :aria-invalid="error === t.codeRequired || undefined"
+            :aria-describedby="error ? 'add-error-msg' : undefined"
             class="w-full border border-[#d4d4d4] rounded px-2 py-1.5 text-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
           />
         </div>
@@ -134,6 +141,8 @@ function onKeydown(e: KeyboardEvent): void {
             id="item-label"
             v-model="label"
             type="text"
+            :aria-invalid="error === t.labelRequired || undefined"
+            :aria-describedby="error ? 'add-error-msg' : undefined"
             class="w-full border border-[#d4d4d4] rounded px-2 py-1.5 text-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
           />
         </div>

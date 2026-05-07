@@ -97,13 +97,13 @@ function ringLabel(r: Ring): string {
 <template>
   <aside
     class="w-64 border-l border-[#d4d4d4] flex flex-col bg-[#fafafa] overflow-y-auto"
-    aria-label="Inspector"
+    :aria-label="t.inspectorLabel"
   >
     <!-- Header with close -->
     <div class="flex items-center justify-between px-3 py-2 border-b border-[#d4d4d4]">
       <span class="text-sm font-semibold">{{ t.details }}</span>
       <button
-        class="w-7 h-7 flex items-center justify-center rounded hover:bg-[#f0f0f0] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
+        class="w-11 h-11 flex items-center justify-center rounded hover:bg-[#f0f0f0] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1d4ed8]"
         :title="t.closePanel"
         :aria-label="t.closePanel"
         @click="emit('close')"

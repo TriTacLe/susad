@@ -133,12 +133,14 @@ const POLARITY_COLORS: Record<Polarity, string> = { positive: '#15803d', negativ
 const SYSTEM_COLOR = '#be185d'
 const EXPORT_ITEM_W = 110
 const FONT_FAMILY = 'system-ui, -apple-system, sans-serif'
-const EXPORT_HEADER_H = 26
-const EXPORT_FOOTER_H = 18
+const EXPORT_HEADER_H = 28
+const EXPORT_FOOTER_H = 20
+const CARD_PAD_X = 10
+const CARD_PAD_Y = 6
 
 function wrapText(text: string, maxWidth: number): string[] {
   const ctx = document.createElement('canvas').getContext('2d')!
-  ctx.font = `600 12px ${FONT_FAMILY}`
+  ctx.font = `500 12px ${FONT_FAMILY}`
   const words = text.split(' ')
   const lines: string[] = []
   let current = ''
@@ -158,8 +160,8 @@ function wrapText(text: string, maxWidth: number): string[] {
 function estimateExportH(item: Item): number {
   if (item.height !== undefined) return item.height
   const w = item.width ?? EXPORT_ITEM_W
-  const lines = wrapText(item.label, w - 12)
-  return Math.max(64, EXPORT_HEADER_H + Math.max(1, lines.length) * 17 + 8 + EXPORT_FOOTER_H)
+  const lines = wrapText(item.label, w - CARD_PAD_X * 2)
+  return Math.max(64, EXPORT_HEADER_H + CARD_PAD_Y + Math.max(1, lines.length) * 17 + CARD_PAD_Y + EXPORT_FOOTER_H)
 }
 
 export function buildExportSvg(diagram: Diagram): string {
@@ -227,25 +229,29 @@ export function buildExportSvg(diagram: Diagram): string {
     const cx = pos.x
     const rx = cx - w / 2
     const ry = pos.y - h / 2
+    const clipId = `clip-${item.id.replace(/[^a-zA-Z0-9]/g, '_')}`
     const polaritySign = item.polarity === 'positive' ? '+' : '-'
-    const labelLines = wrapText(item.label, w - 12)
+    const labelLines = wrapText(item.label, w - CARD_PAD_X * 2)
     // header: ry to ry+EXPORT_HEADER_H
     const headerMidY = ry + EXPORT_HEADER_H / 2
-    // body text: after header + py-1 top (4px), centered per line
-    const labelStartY = ry + EXPORT_HEADER_H + 4 + 8.5
+    // body text: after header + CARD_PAD_Y top, centered per line
+    const labelStartY = ry + EXPORT_HEADER_H + CARD_PAD_Y + 8.5
     const labelEls = labelLines.map((line, i) =>
-      `<text x="${cx.toFixed(1)}" y="${(labelStartY + i * 17).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" font-family="${FONT_FAMILY}" fill="white">${escapeXml(line)}</text>`
+      `<text x="${cx.toFixed(1)}" y="${(labelStartY + i * 17).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="500" font-family="${FONT_FAMILY}" fill="white">${escapeXml(line)}</text>`
     ).join('\n    ')
     // footer: ry+h-EXPORT_FOOTER_H to ry+h
     const footerMidY = ry + h - EXPORT_FOOTER_H / 2
     return `<g>
+    <defs><clipPath id="${clipId}"><rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${w}" height="${h}" rx="4"/></clipPath></defs>
     <rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${w}" height="${h}" rx="4" fill="${color}" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <g clip-path="url(#${clipId})">
     <rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${w}" height="${EXPORT_HEADER_H}" fill="rgba(0,0,0,0.2)"/>
-    <text x="${(rx + 6).toFixed(1)}" y="${headerMidY.toFixed(1)}" dominant-baseline="middle" font-size="12" font-weight="bold" letter-spacing="0.5" font-family="${FONT_FAMILY}" fill="white">${escapeXml(item.code)}</text>
-    <text x="${(rx + w - 6).toFixed(1)}" y="${headerMidY.toFixed(1)}" text-anchor="end" dominant-baseline="middle" font-size="11" font-weight="bold" font-family="${FONT_FAMILY}" fill="white">${polaritySign}</text>
+    <text x="${(rx + CARD_PAD_X).toFixed(1)}" y="${headerMidY.toFixed(1)}" dominant-baseline="middle" font-size="12" font-weight="bold" letter-spacing="0.5" font-family="${FONT_FAMILY}" fill="white">${escapeXml(item.code)}</text>
+    <text x="${(rx + w - CARD_PAD_X).toFixed(1)}" y="${headerMidY.toFixed(1)}" text-anchor="end" dominant-baseline="middle" font-size="11" font-weight="bold" font-family="${FONT_FAMILY}" fill="white">${polaritySign}</text>
     ${labelEls}
     <rect x="${rx.toFixed(1)}" y="${(ry + h - EXPORT_FOOTER_H).toFixed(1)}" width="${w}" height="${EXPORT_FOOTER_H}" fill="rgba(0,0,0,0.15)"/>
     <text x="${cx.toFixed(1)}" y="${footerMidY.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-family="${FONT_FAMILY}" fill="rgba(255,255,255,0.85)">${escapeXml(RING_LABELS[locale][item.ring].toUpperCase())}</text>
+    </g>
   </g>`
   }).join('\n  ')
 
@@ -315,25 +321,29 @@ export function downloadSvg(diagram: Diagram): void {
 
 export function downloadPng(diagram: Diagram): void {
   const svg = buildExportSvg(diagram)
-  const wMatch = svg.match(/width="([\d.]+)"/)
-  const hMatch = svg.match(/height="([\d.]+)"/)
+  const wMatch = svg.match(/^<svg[^>]+width="([\d.]+)"/)
+  const hMatch = svg.match(/^<svg[^>]+height="([\d.]+)"/)
   const svgW = wMatch ? parseFloat(wMatch[1]) : 1200
   const svgH = hMatch ? parseFloat(hMatch[1]) : 1200
-  const blob = new Blob([svg], { type: 'image/svg+xml' })
+  const PX = 4
+  const outW = Math.ceil(svgW * PX)
+  const outH = Math.ceil(svgH * PX)
+  // Set SVG intrinsic dimensions to output size so browsers decode at full resolution
+  // rather than rasterizing at naturalWidth and then upscaling a bitmap.
+  const scaledSvg = svg
+    .replace(/(<svg[^>]+)width="[\d.]+"/, `$1width="${outW}"`)
+    .replace(/(<svg[^>]+)height="[\d.]+"/, `$1height="${outH}"`)
+  const blob = new Blob([scaledSvg], { type: 'image/svg+xml' })
   const url = URL.createObjectURL(blob)
   const img = new Image()
-  const PX = 3
   img.onload = () => {
-    const w = img.naturalWidth || svgW
-    const h = img.naturalHeight || svgH
     const canvas = document.createElement('canvas')
-    canvas.width = Math.ceil(w * PX)
-    canvas.height = Math.ceil(h * PX)
+    canvas.width = outW
+    canvas.height = outH
     const ctx = canvas.getContext('2d')!
     ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.scale(PX, PX)
-    ctx.drawImage(img, 0, 0, w, h)
+    ctx.fillRect(0, 0, outW, outH)
+    ctx.drawImage(img, 0, 0, outW, outH)
     URL.revokeObjectURL(url)
     canvas.toBlob((pngBlob) => {
       if (pngBlob) triggerDownload(pngBlob, `${diagram.system || 'susad'}.png`)

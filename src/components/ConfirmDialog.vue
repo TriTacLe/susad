@@ -18,11 +18,18 @@ const emit = defineEmits<{
 
 const dialogRef = ref<HTMLElement | null>(null)
 const primaryBtnRef = ref<HTMLButtonElement | null>(null)
+let triggerEl: HTMLElement | null = null
 
 watch(
   () => props.open,
   (v) => {
-    if (v) nextTick(() => primaryBtnRef.value?.focus())
+    if (v) {
+      triggerEl = document.activeElement as HTMLElement | null
+      nextTick(() => primaryBtnRef.value?.focus())
+    } else {
+      triggerEl?.focus()
+      triggerEl = null
+    }
   },
 )
 

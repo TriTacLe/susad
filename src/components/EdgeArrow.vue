@@ -10,19 +10,26 @@ const props = defineProps<{
   y2: number
   selected: boolean
   scale?: number
+  fromLabel?: string
+  toLabel?: string
 }>()
 
 defineEmits<{ click: [id: string] }>()
 
 const path = computed(() => bezierPath(props.x1, props.y1, props.x2, props.y2))
 const sw = computed(() => 2 * (props.scale ?? 1))
+const ariaLabel = computed(() =>
+  props.fromLabel && props.toLabel
+    ? `${props.fromLabel} -> ${props.toLabel}`
+    : 'Edge connection',
+)
 </script>
 
 <template>
   <g
     data-edge="true"
     role="button"
-    :aria-label="`Edge connection`"
+    :aria-label="ariaLabel"
     tabindex="0"
     style="pointer-events: all"
     @click="$emit('click', id)"
@@ -48,3 +55,10 @@ const sw = computed(() => 2 * (props.scale ?? 1))
     />
   </g>
 </template>
+
+<style scoped>
+g:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+</style>

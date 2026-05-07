@@ -27,6 +27,7 @@ const emit = defineEmits<{
   cleanupLayout: []
   fitView: []
   diagramScale: [scale: number]
+  showShortcuts: []
 }>()
 
 const t = computed(() => useT(props.locale))
@@ -41,16 +42,17 @@ function onScaleInput(e: Event): void {
     <span class="font-semibold text-sm mr-2">{{ t.appName }}</span>
 
     <button class="btn" :title="t.new" @click="emit('new')">{{ t.new }}</button>
-    <button class="btn" :title="t.clearDiagram" @click="emit('clearDiagram')">{{ t.clearDiagram }}</button>
+    <button class="btn border-red-300 text-red-700 hover:bg-red-50" :title="t.clearDiagram" @click="emit('clearDiagram')">{{ t.clearDiagram }}</button>
     <button class="btn" :title="t.open" @click="emit('open')">{{ t.open }}</button>
     <button class="btn relative" :title="`${t.save} (Ctrl+S)`" @click="emit('save')">
       {{ t.save }}
       <span
         v-if="hasPendingChanges"
         class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#b45309]"
-        :title="t.unsaved ?? 'Unsaved changes'"
+        :title="t.unsaved"
         aria-hidden="true"
       />
+      <span v-if="hasPendingChanges" class="sr-only">{{ t.unsavedChanges }}</span>
     </button>
 
     <span class="w-px h-5 bg-[#d4d4d4] mx-1" aria-hidden="true" />
@@ -132,6 +134,8 @@ function onScaleInput(e: Event): void {
     </button>
 
     <span class="flex-1" />
+
+    <button class="btn" :title="t.shortcutHelpTitle" @click="emit('showShortcuts')">?</button>
 
     <button class="btn" :title="t.localeSwitchTitle" @click="emit('toggleLocale')">
       {{ t.locale }}
